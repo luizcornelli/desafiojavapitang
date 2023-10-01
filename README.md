@@ -8,7 +8,7 @@
 
 # Histórias de usuário
 
-1. Gestão de Usuários
+1. Gestão de Usuários:
 
   * DJP1 - Eu, enquanto Usuário não autenticado quero catalogar informações sobre usuários para que eu possa acessar posteriormente
   * DJP2 - Eu, enquanto Usuário não autenticado quero ser capaz de ver uma lista de usuários para que eu possa ter um maior controle sobre usuários cadastrados
@@ -16,7 +16,7 @@
   * DJP4 - Eu, enquanto Usuário não autenticado quero ser capaz de remover informações de usuários que não são mais relevantes
   * DJP5 - Eu, enquanto Usuário registrado e não autenticado, eu quero poder fazer login no sistema usando meu login de usuário e senha
      
-2. Gestão de Carros dos usuários
+2. Gestão de Carros dos usuários:
   
   * DJP6 - Eu, enquanto Usuário registrado e autenticado quero catalogar informações sobre meus automoveis para que eu possa acessar posteriormente
   * DJP7 - Eu, enquanto Usuário registrado e autenticado quero ser capaz de ver uma lista de detalhes dos meus automoveis para que eu possa ter um maior controle sobre meus carros
