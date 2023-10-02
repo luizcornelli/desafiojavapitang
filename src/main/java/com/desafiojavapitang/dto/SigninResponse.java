@@ -15,19 +15,23 @@ public class SigninResponse {
     private String email;
     private String birthday;
     private String phone;
+    private String createdAt;
+    private String lastLogin;
     private List<CarResponse> cars = new ArrayList<>();
     private String accessToken;
 
     public SigninResponse(){
     }
 
-    public SigninResponse(Long id, String firstName, String lastName, String email, String birthday, String phone) {
+    public SigninResponse(Long id, String firstName, String lastName, String email, String birthday, String phone, String lastLogin, String createdAt) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.birthday = birthday;
         this.phone = phone;
+        this.lastLogin = lastLogin;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -88,5 +92,21 @@ public class SigninResponse {
 
     public List<CarResponse> getCars() {
         return cars;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(String lastLogin) {
+        this.lastLogin = lastLogin;
     }
 }

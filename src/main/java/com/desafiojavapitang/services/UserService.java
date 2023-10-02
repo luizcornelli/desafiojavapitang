@@ -19,4 +19,6 @@ public interface UserService {
     void delete(Long id);
 
     UserResponse update(Long id, UserRequest userRequest);
+
+    UserResponse findAuthenticateUser(String token);
 }

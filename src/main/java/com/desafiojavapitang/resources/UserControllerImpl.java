@@ -47,4 +47,9 @@ public class UserControllerImpl implements UserController{
     public ResponseEntity<UserResponse> update(Long id, UserRequest userRequest) {
         return  ResponseEntity.ok(userService.update(id, userRequest));
     }
+
+    @Override
+    public ResponseEntity<UserResponse> findAuthenticateUser(String token) {
+        return  ResponseEntity.ok(userService.findAuthenticateUser(token));
+    }
 }

@@ -7,16 +7,18 @@ public class CarResponse {
     private String licensePlate;
     private String model;
     private String color;
+    private Long userId;
 
     public CarResponse(){
     }
 
-    public CarResponse(Long id, Integer year, String licensePlate, String model, String color) {
+    public CarResponse(Long id, Integer year, String licensePlate, String model, String color, Long userId) {
         this.id = id;
         this.year = year;
         this.licensePlate = licensePlate;
         this.model = model;
         this.color = color;
+        this.userId = userId;
     }
 
     public Long getId() {
@@ -57,5 +59,13 @@ public class CarResponse {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

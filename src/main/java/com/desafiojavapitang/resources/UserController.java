@@ -9,24 +9,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping(value = "/users")
 public interface UserController {
 
     @PostMapping(value = "/api/signin")
     ResponseEntity<SigninResponse> authenticateUser(@RequestBody SigninRequest signinRequest);
 
-    @GetMapping
+    @GetMapping("/users")
     ResponseEntity<Page<UserResponse>> findAllPaged(Pageable pageable);
 
-    @PostMapping
+    @PostMapping("/users")
     ResponseEntity<UserResponse> create(@RequestBody UserRequest userRequest);
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "users/{id}")
     ResponseEntity<UserResponse> findById(@PathVariable Long id);
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping(value = "users/{id}")
     ResponseEntity<Void> delete(@PathVariable Long id);
 
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "users/{id}")
     ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody UserRequest userRequest);
+
+    @GetMapping(value = "/api/me")
+    ResponseEntity<UserResponse> findAuthenticateUser(@RequestHeader("Authorization") String token);
 }

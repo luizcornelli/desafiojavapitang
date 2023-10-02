@@ -8,9 +8,12 @@ import com.desafiojavapitang.entities.UserEntity;
 import com.desafiojavapitang.repositories.UserRepository;
 import com.desafiojavapitang.services.mappers.Mapper;
 import com.desafiojavapitang.utils.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +26,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -49,9 +55,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	private Mapper<UserRequest, UserEntity> userRequestToUserEntityMapper;
 
 	@Autowired
-	private Mapper<UserEntity, SigninResponse> userEntitySigninResponseMapper;
+	private Mapper<UserEntity, SigninResponse> userEntityToSigninResponseMapper;
+
+	@Value("${jwt.secret}")
+	private String jwtSecret;
 
 	@Override
+	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
 		UserEntity user = repository.findByEmail(username);
@@ -66,6 +76,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
+	@Transactional
 	public SigninResponse authenticateUser(SigninRequest signinRequest) {
 
 		UserEntity userEntity = repository.findByLogin(signinRequest.getLogin());
@@ -82,7 +93,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 			String accessToken = jwtTokenProvider.generateToken(authentication);
 
-			SigninResponse signinResponse = userEntitySigninResponseMapper.map(userEntity);
+			userEntity.setLastLogin(Instant.now());
+			userEntity = repository.save(userEntity);
+
+			SigninResponse signinResponse = userEntityToSigninResponseMapper.map(userEntity);
+
 			signinResponse.setAccessToken(accessToken);
 
 			return signinResponse;
@@ -91,20 +106,24 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Page<UserResponse> findAllPaged(Pageable pageable) {
 
 		return repository.findAll(pageable).map(userEntityToUserResponseMapper::map);
 	}
 
 	@Override
+	@Transactional
 	public UserResponse create(UserRequest userRequest) {
 
 		UserEntity userEntity = userRequestToUserEntityMapper.map(userRequest);
+		userEntity.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
 
 		return userEntityToUserResponseMapper.map(repository.save(userEntity));
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public UserResponse findById(Long id) {
 
 		UserEntity userEntity = repository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found: " + id));
@@ -112,12 +131,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
+	@Transactional
 	public void delete(Long id) {
 
 		repository.deleteById(id);
 	}
 
 	@Override
+	@Transactional
 	public UserResponse update(Long id, UserRequest userRequest) {
 
 		UserEntity userEntity = repository.getOne(id);
@@ -133,4 +154,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return userEntityToUserResponseMapper.map(repository.save(userEntity));
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public UserResponse findAuthenticateUser(String token) {
+
+		Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
+		String username = claims.getSubject();
+
+		UserEntity userEntity = repository.findByEmail(username);
+
+		return userEntityToUserResponseMapper.map(userEntity);
+	}
 }

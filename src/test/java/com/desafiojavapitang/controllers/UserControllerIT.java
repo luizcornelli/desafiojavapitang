@@ -4,10 +4,12 @@ package com.desafiojavapitang.controllers;
 import com.desafiojavapitang.dto.CarRequest;
 import com.desafiojavapitang.dto.SigninRequest;
 import com.desafiojavapitang.dto.UserRequest;
+import com.desafiojavapitang.utils.TokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -34,6 +36,9 @@ public class UserControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TokenUtil tokenUtil;
+
     private String existsUserLogin;
     private String existsUserPassword;
     private String existsUserFirstName;
@@ -47,6 +52,7 @@ public class UserControllerIT {
     private String existsColor;
     private Long existsUserId;
     private Long existsCarId;
+
     @BeforeEach
     void setUp() throws Exception {
 
@@ -60,13 +66,44 @@ public class UserControllerIT {
         existsUserEmail = "bob@gmail.com";
         existsUserBirthday = "2005-12-12";
         existsUserPhone = "+558123943232";
-
         existsYear = 2018;
         existsLicensePlate = "PDV-0625" ;
         existstModel = "Audi";
         existsColor = "White";
 
         existsCarId = 1L;
+    }
+
+    @Test
+    public void findByUserLogged() throws Exception {
+
+        String resultString = tokenUtil.obtainAccessToken(mockMvc, existsUserLogin, existsUserPassword);
+
+        JacksonJsonParser jsonParser = new JacksonJsonParser();
+        String accessToken = jsonParser.parseMap(resultString).get("accessToken").toString();
+        String lastLogin = jsonParser.parseMap(resultString).get("lastLogin").toString();
+        String createdAt = jsonParser.parseMap(resultString).get("createdAt").toString();
+
+        ResultActions result =
+                mockMvc.perform(get("/api/me")
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.id").value(existsUserId));
+        result.andExpect(jsonPath("$.firstName").value(existsUserFirstName));
+        result.andExpect(jsonPath("$.lastName").value(existsUserLastName));
+        result.andExpect(jsonPath("$.email").value(existsUserEmail));
+        result.andExpect(jsonPath("$.birthday").value(existsUserBirthday));
+        result.andExpect(jsonPath("$.phone").value(existsUserPhone));
+        result.andExpect(jsonPath("$.createdAt").value(createdAt));
+        result.andExpect(jsonPath("$.lastLogin").value(lastLogin));
+
+        result.andExpect(jsonPath("$.cars[0].id").value(existsCarId));
+        result.andExpect(jsonPath("$.cars[0].year").value(existsYear));
+        result.andExpect(jsonPath("$.cars[0].licensePlate").value(existsLicensePlate));
+        result.andExpect(jsonPath("$.cars[0].model").value(existstModel));
+        result.andExpect(jsonPath("$.cars[0].color").value(existsColor));
     }
 
     @Test
@@ -77,7 +114,7 @@ public class UserControllerIT {
         String jsonBody = objectMapper.writeValueAsString(signinRequest);
 
         ResultActions result =
-                mockMvc.perform(post("/users/api/signin")
+                mockMvc.perform(post("/api/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                         .accept(MediaType.APPLICATION_JSON));

@@ -5,7 +5,10 @@ import com.desafiojavapitang.entities.CarEntity;
 import com.desafiojavapitang.entities.UserEntity;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -26,11 +29,14 @@ public class UserRequestToUserEntityMapper implements Mapper<UserRequest, UserEn
         List<CarEntity> carEntityList = new ArrayList<>();
 
         input.getCars().forEach(car -> {
+
             CarEntity carEntity = new CarEntity();
             carEntity.setYear(car.getYear());
             carEntity.setLicensePlate(car.getLicensePlate());
             carEntity.setModel(car.getModel());
             carEntity.setColor(car.getColor());
+            carEntity.setUser(userEntity);
+
             carEntityList.add(carEntity);
         });
 
@@ -38,5 +44,4 @@ public class UserRequestToUserEntityMapper implements Mapper<UserRequest, UserEn
 
         return userEntity;
     }
-
 }
