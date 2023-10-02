@@ -1,10 +1,7 @@
 package com.desafiojavapitang.services;
 
-import com.desafiojavapitang.dto.SigninResponse;
-import com.desafiojavapitang.dto.UserRequest;
-import com.desafiojavapitang.dto.UserResponse;
+import com.desafiojavapitang.dto.*;
 import com.desafiojavapitang.entities.UserEntity;
-import com.desafiojavapitang.dto.SigninRequest;
 import com.desafiojavapitang.repositories.UserRepository;
 import com.desafiojavapitang.services.mappers.Mapper;
 import com.desafiojavapitang.utils.JwtTokenProvider;
@@ -25,7 +22,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -50,6 +49,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private Mapper<UserRequest, UserEntity> userRequestToUserEntityMapper;
+
+	@Autowired
+	private Mapper<UserEntity, SigninResponse> userEntitySigninResponseMapper;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -82,12 +84,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 			String accessToken = jwtTokenProvider.generateToken(authentication);
 
-			Date birthday = userEntity.getBirthday();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			String birthdayFormat = dateFormat.format(birthday);
+			SigninResponse signinResponse = userEntitySigninResponseMapper.map(userEntity);
+			signinResponse.setAccessToken(accessToken);
 
-			return new SigninResponse(userEntity.getFirstName(), userEntity.getLastName(),
-					userEntity.getEmail(), birthdayFormat, userEntity.getPhone(), accessToken);
+			return signinResponse;
 		}
 		return null;
 	}
@@ -105,4 +105,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 		return userEntityToUserResponseMapper.map(repository.save(userEntity));
 	}
+
+	@Override
+	public UserResponse findById(Long id) {
+
+		UserEntity userEntity = repository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found: " + id));
+		return userEntityToUserResponseMapper.map(userEntity);
+	}
+
 }

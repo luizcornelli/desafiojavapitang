@@ -42,9 +42,16 @@ public class UserControllerIT {
     private String existsUserEmail;
     private String existsUserBirthday;
     private String existsUserPhone;
+    private Integer existsYear;
+    private String existsLicensePlate;
+    private String existstModel;
+    private String existsColor;
+    private Long existsUserId;
 
     @BeforeEach
     void setUp() throws Exception {
+
+        existsUserId = 1L;
 
         existsUserLogin = "bob_king3242";
         existsUserPassword = "123456";
@@ -54,6 +61,11 @@ public class UserControllerIT {
         existsUserEmail = "bob@gmail.com";
         existsUserBirthday = "2005-12-12";
         existsUserPhone = "+558123943232";
+
+        existsYear = 2018;
+        existsLicensePlate = "PDV-0625" ;
+        existstModel = "Audi";
+        existsColor = "White";
     }
 
     @Test
@@ -75,11 +87,17 @@ public class UserControllerIT {
         result.andExpect(jsonPath("$.email").value(existsUserEmail));
         result.andExpect(jsonPath("$.birthday").value(existsUserBirthday));
         result.andExpect(jsonPath("$.phone").value(existsUserPhone));
+
+        result.andExpect(jsonPath("$.cars[0].year").value(existsYear));
+        result.andExpect(jsonPath("$.cars[0].licensePlate").value(existsLicensePlate));
+        result.andExpect(jsonPath("$.cars[0].model").value(existstModel));
+        result.andExpect(jsonPath("$.cars[0].color").value(existsColor));
+
         result.andExpect(jsonPath("$.accessToken", notNullValue()));
     }
 
     @Test
-    public void findByUserShouldReturnPage() throws Exception {
+    public void findByUserPaged() throws Exception {
 
         ResultActions result =
                 mockMvc.perform(get("/users")
@@ -92,6 +110,11 @@ public class UserControllerIT {
         result.andExpect(jsonPath("$.content[0].email").value(existsUserEmail));
         result.andExpect(jsonPath("$.content[0].birthday").value(existsUserBirthday));
         result.andExpect(jsonPath("$.content[0].phone").value(existsUserPhone));
+
+        result.andExpect(jsonPath("$.content[0].cars[0].year").value(existsYear));
+        result.andExpect(jsonPath("$.content[0].cars[0].licensePlate").value(existsLicensePlate));
+        result.andExpect(jsonPath("$.content[0].cars[0].model").value(existstModel));
+        result.andExpect(jsonPath("$.content[0].cars[0].color").value(existsColor));
     }
 
     @Test
@@ -101,20 +124,20 @@ public class UserControllerIT {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date birthday = dateFormat.parse(dateString);
 
-        String login = "bob_king3242";
+        String login = "lola_2132";
         String password = "123456";
-        String firstName = "Bob";
-        String lastName = "Falcon";
-        String email = "bob@gmail.com";
-        String phone = "+558123943232";
+        String firstName = "Lola";
+        String lastName = "Silva";
+        String email = "lola@gmail.com";
+        String phone = "+558123933333";
 
         UserRequest userRequest = new UserRequest(firstName, lastName , email,
                 birthday, login, password, phone);
 
        Integer year = 2018;
-       String licensePlate = "PDV-0625" ;
-       String model = "Audi";
-       String color = "White";
+       String licensePlate = "UDP-0232" ;
+       String model = "Ferrari";
+       String color = "Red";
 
         CarRequest carRequest = new CarRequest(year, licensePlate, model, color);
 
@@ -139,5 +162,25 @@ public class UserControllerIT {
         result.andExpect(jsonPath("$.cars[0].licensePlate").value(licensePlate));
         result.andExpect(jsonPath("$.cars[0].model").value(model));
         result.andExpect(jsonPath("$.cars[0].color").value(color));
+    }
+
+    @Test
+    public void findByIdUser() throws Exception {
+
+        ResultActions result =
+                mockMvc.perform(get("/users/{id}", existsUserId)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.firstName").value(existsUserFirstName));
+        result.andExpect(jsonPath("$.lastName").value(existsUserLastName));
+        result.andExpect(jsonPath("$.email").value(existsUserEmail));
+        result.andExpect(jsonPath("$.birthday").value(existsUserBirthday));
+        result.andExpect(jsonPath("$.phone").value(existsUserPhone));
+
+        result.andExpect(jsonPath("$.cars[0].year").value(existsYear));
+        result.andExpect(jsonPath("$.cars[0].licensePlate").value(existsLicensePlate));
+        result.andExpect(jsonPath("$.cars[0].model").value(existstModel));
+        result.andExpect(jsonPath("$.cars[0].color").value(existsColor));
     }
 }

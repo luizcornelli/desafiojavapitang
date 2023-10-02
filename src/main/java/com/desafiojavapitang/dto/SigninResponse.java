@@ -2,7 +2,9 @@ package com.desafiojavapitang.dto;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class SigninResponse {
@@ -12,18 +14,18 @@ public class SigninResponse {
     private String email;
     private String birthday;
     private String phone;
+    private List<CarResponse> cars = new ArrayList<>();
     private String accessToken;
 
     public SigninResponse(){
     }
 
-    public SigninResponse(String firstName, String lastName, String email, String birthday, String phone, String accessToken) {
+    public SigninResponse(String firstName, String lastName, String email, String birthday, String phone) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.birthday = birthday;
         this.phone = phone;
-        this.accessToken = accessToken;
     }
 
     public String getFirstName() {
@@ -72,5 +74,9 @@ public class SigninResponse {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public List<CarResponse> getCars() {
+        return cars;
     }
 }

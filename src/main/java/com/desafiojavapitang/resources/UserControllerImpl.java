@@ -31,4 +31,9 @@ public class UserControllerImpl implements UserController{
     public ResponseEntity<UserResponse> create(UserRequest userRequest) {
         return  ResponseEntity.ok(userService.create(userRequest));
     }
+
+    @Override
+    public ResponseEntity<UserResponse> findById(Long id) {
+        return  ResponseEntity.ok(userService.findById(id));
+    }
 }

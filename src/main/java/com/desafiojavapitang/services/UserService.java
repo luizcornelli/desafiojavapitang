@@ -13,4 +13,6 @@ public interface UserService {
     Page<UserResponse> findAllPaged(Pageable pageable);
 
     UserResponse create(UserRequest userRequest);
+
+    UserResponse findById(Long id);
 }
