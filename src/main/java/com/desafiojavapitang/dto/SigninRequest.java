@@ -1,10 +1,6 @@
 package com.desafiojavapitang.dto;
 
-import java.io.Serializable;
-
-public class SigninRequest implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class SigninRequest {
 
     private String login;
     private String password;

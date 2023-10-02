@@ -1,13 +1,11 @@
 package com.desafiojavapitang.entities;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tb_user")
@@ -19,20 +17,13 @@ public class UserEntity implements UserDetails, Serializable {
     private String firstName;
     private String lastName;
     private String email;
-
     private Date birthday;
-
     private String login;
-
     private String password;
-
     private String phone;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "tb_user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<RoleEntity> roles = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<CarEntity> cars = new ArrayList<>();
 
     public UserEntity(){
     }
@@ -96,6 +87,10 @@ public class UserEntity implements UserDetails, Serializable {
         this.login = login;
     }
 
+    public List<CarEntity> getCars() {
+        return cars;
+    }
+
     @Override
     public String getPassword() {
         return password;
@@ -113,10 +108,6 @@ public class UserEntity implements UserDetails, Serializable {
         this.phone = phone;
     }
 
-    public List<RoleEntity> getRoles() {
-        return roles;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -132,8 +123,7 @@ public class UserEntity implements UserDetails, Serializable {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getAuthority()))
-                .collect(Collectors.toList());
+        return null;
     }
 
     @Override
@@ -159,14 +149,5 @@ public class UserEntity implements UserDetails, Serializable {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public boolean hasHole(String roleName) {
-        for (RoleEntity role : roles) {
-            if (role.getAuthority().equals(roleName)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -1,14 +1,19 @@
 package com.desafiojavapitang.services;
 
 import com.desafiojavapitang.dto.SigninResponse;
+import com.desafiojavapitang.dto.UserRequest;
+import com.desafiojavapitang.dto.UserResponse;
 import com.desafiojavapitang.entities.UserEntity;
 import com.desafiojavapitang.dto.SigninRequest;
 import com.desafiojavapitang.repositories.UserRepository;
+import com.desafiojavapitang.services.mappers.Mapper;
 import com.desafiojavapitang.utils.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +23,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -36,6 +44,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
+
+	@Autowired
+	private Mapper<UserEntity, UserResponse> userEntityToUserResponseMapper;
+
+	@Autowired
+	private Mapper<UserRequest, UserEntity> userRequestToUserEntityMapper;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -68,10 +82,27 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 			String accessToken = jwtTokenProvider.generateToken(authentication);
 
+			Date birthday = userEntity.getBirthday();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String birthdayFormat = dateFormat.format(birthday);
+
 			return new SigninResponse(userEntity.getFirstName(), userEntity.getLastName(),
-					userEntity.getEmail(), userEntity.getBirthday(), userEntity.getPhone(), accessToken);
+					userEntity.getEmail(), birthdayFormat, userEntity.getPhone(), accessToken);
 		}
 		return null;
 	}
 
+	@Override
+	public Page<UserResponse> findAllPaged(Pageable pageable) {
+
+		return repository.findAll(pageable).map(userEntityToUserResponseMapper::map);
+	}
+
+	@Override
+	public UserResponse create(UserRequest userRequest) {
+
+		UserEntity userEntity = userRequestToUserEntityMapper.map(userRequest);
+
+		return userEntityToUserResponseMapper.map(repository.save(userEntity));
+	}
 }

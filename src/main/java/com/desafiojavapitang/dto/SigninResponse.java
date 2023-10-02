@@ -1,23 +1,23 @@
 package com.desafiojavapitang.dto;
 
-import java.io.Serializable;
+import lombok.Data;
+
 import java.util.Date;
 
-public class SigninResponse implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+@Data
+public class SigninResponse {
 
     private String firstName;
     private String lastName;
     private String email;
-    private Date birthday;
+    private String birthday;
     private String phone;
     private String accessToken;
 
     public SigninResponse(){
     }
 
-    public SigninResponse(String firstName, String lastName, String email, Date birthday, String phone, String accessToken) {
+    public SigninResponse(String firstName, String lastName, String email, String birthday, String phone, String accessToken) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -50,11 +50,11 @@ public class SigninResponse implements Serializable {
         this.email = email;
     }
 
-    public Date getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(String birthday) {
         this.birthday = birthday;
     }
 
