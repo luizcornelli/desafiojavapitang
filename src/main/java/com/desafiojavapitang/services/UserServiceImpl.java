@@ -1,6 +1,9 @@
 package com.desafiojavapitang.services;
 
-import com.desafiojavapitang.dto.*;
+import com.desafiojavapitang.dto.SigninRequest;
+import com.desafiojavapitang.dto.SigninResponse;
+import com.desafiojavapitang.dto.UserRequest;
+import com.desafiojavapitang.dto.UserResponse;
 import com.desafiojavapitang.entities.UserEntity;
 import com.desafiojavapitang.repositories.UserRepository;
 import com.desafiojavapitang.services.mappers.Mapper;
@@ -20,11 +23,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -117,6 +115,22 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public void delete(Long id) {
 
 		repository.deleteById(id);
+	}
+
+	@Override
+	public UserResponse update(Long id, UserRequest userRequest) {
+
+		UserEntity userEntity = repository.getOne(id);
+
+		userEntity.setFirstName(userRequest.getFirstName());
+		userEntity.setLastName(userRequest.getLastName());
+		userEntity.setEmail(userRequest.getEmail());
+		userEntity.setBirthday(userRequest.getBirthday());
+		userEntity.setLogin(userRequest.getLogin());
+		userEntity.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
+		userEntity.setPhone(userRequest.getPhone());
+
+		return userEntityToUserResponseMapper.map(repository.save(userEntity));
 	}
 
 }

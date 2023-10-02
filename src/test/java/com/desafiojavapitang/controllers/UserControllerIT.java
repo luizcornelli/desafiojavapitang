@@ -46,7 +46,7 @@ public class UserControllerIT {
     private String existstModel;
     private String existsColor;
     private Long existsUserId;
-
+    private Long existsCarId;
     @BeforeEach
     void setUp() throws Exception {
 
@@ -65,6 +65,8 @@ public class UserControllerIT {
         existsLicensePlate = "PDV-0625" ;
         existstModel = "Audi";
         existsColor = "White";
+
+        existsCarId = 1L;
     }
 
     @Test
@@ -81,12 +83,14 @@ public class UserControllerIT {
                         .accept(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.id").value(existsUserId));
         result.andExpect(jsonPath("$.firstName").value(existsUserFirstName));
         result.andExpect(jsonPath("$.lastName").value(existsUserLastName));
         result.andExpect(jsonPath("$.email").value(existsUserEmail));
         result.andExpect(jsonPath("$.birthday").value(existsUserBirthday));
         result.andExpect(jsonPath("$.phone").value(existsUserPhone));
 
+        result.andExpect(jsonPath("$.cars[0].id").value(existsCarId));
         result.andExpect(jsonPath("$.cars[0].year").value(existsYear));
         result.andExpect(jsonPath("$.cars[0].licensePlate").value(existsLicensePlate));
         result.andExpect(jsonPath("$.cars[0].model").value(existstModel));
@@ -104,12 +108,14 @@ public class UserControllerIT {
 
         result.andExpect(status().isOk());
 
+        result.andExpect(jsonPath("$.content[0].id").value(existsUserId));
         result.andExpect(jsonPath("$.content[0].firstName").value(existsUserFirstName));
         result.andExpect(jsonPath("$.content[0].lastName").value(existsUserLastName));
         result.andExpect(jsonPath("$.content[0].email").value(existsUserEmail));
         result.andExpect(jsonPath("$.content[0].birthday").value(existsUserBirthday));
         result.andExpect(jsonPath("$.content[0].phone").value(existsUserPhone));
 
+        result.andExpect(jsonPath("$.content[0].cars[0].id").value(existsCarId));
         result.andExpect(jsonPath("$.content[0].cars[0].year").value(existsYear));
         result.andExpect(jsonPath("$.content[0].cars[0].licensePlate").value(existsLicensePlate));
         result.andExpect(jsonPath("$.content[0].cars[0].model").value(existstModel));
@@ -151,12 +157,14 @@ public class UserControllerIT {
                         .accept(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.id").value(2L));
         result.andExpect(jsonPath("$.firstName").value(firstName));
         result.andExpect(jsonPath("$.lastName").value(lastName));
         result.andExpect(jsonPath("$.email").value(email));
         result.andExpect(jsonPath("$.birthday").value(dateString));
         result.andExpect(jsonPath("$.phone").value(phone));
 
+        result.andExpect(jsonPath("$.cars[0].id").value(2L));
         result.andExpect(jsonPath("$.cars[0].year").value(year));
         result.andExpect(jsonPath("$.cars[0].licensePlate").value(licensePlate));
         result.andExpect(jsonPath("$.cars[0].model").value(model));
@@ -171,12 +179,14 @@ public class UserControllerIT {
                         .contentType(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.id").value(existsUserId));
         result.andExpect(jsonPath("$.firstName").value(existsUserFirstName));
         result.andExpect(jsonPath("$.lastName").value(existsUserLastName));
         result.andExpect(jsonPath("$.email").value(existsUserEmail));
         result.andExpect(jsonPath("$.birthday").value(existsUserBirthday));
         result.andExpect(jsonPath("$.phone").value(existsUserPhone));
 
+        result.andExpect(jsonPath("$.cars[0].id").value(existsCarId));
         result.andExpect(jsonPath("$.cars[0].year").value(existsYear));
         result.andExpect(jsonPath("$.cars[0].licensePlate").value(existsLicensePlate));
         result.andExpect(jsonPath("$.cars[0].model").value(existstModel));
@@ -190,5 +200,39 @@ public class UserControllerIT {
                 mockMvc.perform(delete("/users/{id}", existsUserId)
                         .contentType(MediaType.APPLICATION_JSON));
         result.andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void updateUser() throws Exception {
+
+        String dateString = "2011-02-01";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date birthday = dateFormat.parse(dateString);
+
+        String newLogin = "carla_0212";
+        String newPassword = "654321";
+        String newFirstName = "Carla";
+        String newLastName = "Maria";
+        String newEmail = "maria_c@gmail.com";
+        String newPhone = "+558123993827";
+
+        UserRequest userRequest = new UserRequest(newFirstName, newLastName , newEmail,
+                birthday, newLogin, newPassword, newPhone);
+
+        String jsonBody = objectMapper.writeValueAsString(userRequest);
+
+        ResultActions result =
+                mockMvc.perform(put("/users/{id}", existsUserId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.id").value(existsUserId));
+        result.andExpect(jsonPath("$.firstName").value(newFirstName));
+        result.andExpect(jsonPath("$.lastName").value(newLastName));
+        result.andExpect(jsonPath("$.email").value(newEmail));
+        result.andExpect(jsonPath("$.birthday").value(dateString));
+        result.andExpect(jsonPath("$.phone").value(newPhone));
     }
 }

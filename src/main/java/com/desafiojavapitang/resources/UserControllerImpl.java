@@ -42,4 +42,9 @@ public class UserControllerImpl implements UserController{
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Override
+    public ResponseEntity<UserResponse> update(Long id, UserRequest userRequest) {
+        return  ResponseEntity.ok(userService.update(id, userRequest));
+    }
 }

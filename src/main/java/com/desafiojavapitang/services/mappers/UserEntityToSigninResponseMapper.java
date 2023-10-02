@@ -32,7 +32,7 @@ public class UserEntityToSigninResponseMapper implements Mapper<UserEntity, Sign
             carResponseList.add(carResponse);
         });
 
-        SigninResponse signinResponse = new SigninResponse(input.getFirstName(), input.getLastName(),
+        SigninResponse signinResponse = new SigninResponse(input.getId(), input.getFirstName(), input.getLastName(),
                 input.getEmail(), birthdayFormat, input.getPhone());
 
         signinResponse.getCars().addAll(carResponseList);

@@ -22,7 +22,7 @@ public class UserEntity implements UserDetails, Serializable {
     private String password;
     private String phone;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<CarEntity> cars = new ArrayList<>();
 
     public UserEntity(){

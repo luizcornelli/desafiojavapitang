@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class SigninResponse {
 
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;
@@ -20,12 +21,21 @@ public class SigninResponse {
     public SigninResponse(){
     }
 
-    public SigninResponse(String firstName, String lastName, String email, String birthday, String phone) {
+    public SigninResponse(Long id, String firstName, String lastName, String email, String birthday, String phone) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.birthday = birthday;
         this.phone = phone;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
