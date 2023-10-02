@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -55,13 +56,18 @@ public class CarControllerIT {
         existsColor = "White";
     }
 
-
-
     @Test
     public void findByCarPaged() throws Exception {
 
+        String resultString = tokenUtil.obtainAccessToken(mockMvc, existsUserLogin, existsUserPassword);
+
+        JacksonJsonParser jsonParser = new JacksonJsonParser();
+        String accessToken = jsonParser.parseMap(resultString).get("accessToken").toString();
+        String lastLogin = jsonParser.parseMap(resultString).get("lastLogin").toString();
+        String createdAt = jsonParser.parseMap(resultString).get("createdAt").toString();
+
         ResultActions result =
-                mockMvc.perform(get("/cars")
+                mockMvc.perform(get("/api/cars")
                         .contentType(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isOk());

@@ -140,7 +140,7 @@ public class UserControllerIT {
     public void findByUserPaged() throws Exception {
 
         ResultActions result =
-                mockMvc.perform(get("/users")
+                mockMvc.perform(get("/api/users")
                         .contentType(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isOk());
@@ -188,7 +188,7 @@ public class UserControllerIT {
         String jsonBody = objectMapper.writeValueAsString(userRequest);
 
         ResultActions result =
-                mockMvc.perform(post("/users")
+                mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                         .accept(MediaType.APPLICATION_JSON));
@@ -212,7 +212,7 @@ public class UserControllerIT {
     public void findByIdUser() throws Exception {
 
         ResultActions result =
-                mockMvc.perform(get("/users/{id}", existsUserId)
+                mockMvc.perform(get("/api/users/{id}", existsUserId)
                         .contentType(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isOk());
@@ -234,7 +234,7 @@ public class UserControllerIT {
     public void deleteUser() throws Exception {
 
         ResultActions result =
-                mockMvc.perform(delete("/users/{id}", existsUserId)
+                mockMvc.perform(delete("/api/users/{id}", existsUserId)
                         .contentType(MediaType.APPLICATION_JSON));
         result.andExpect(status().isNoContent());
     }
@@ -259,7 +259,7 @@ public class UserControllerIT {
         String jsonBody = objectMapper.writeValueAsString(userRequest);
 
         ResultActions result =
-                mockMvc.perform(put("/users/{id}", existsUserId)
+                mockMvc.perform(put("/api/users/{id}", existsUserId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                         .accept(MediaType.APPLICATION_JSON));
