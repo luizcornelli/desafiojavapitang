@@ -113,4 +113,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return userEntityToUserResponseMapper.map(userEntity);
 	}
 
+	@Override
+	public void delete(Long id) {
+
+		repository.deleteById(id);
+	}
+
 }

@@ -23,4 +23,7 @@ public interface UserController {
 
     @GetMapping(value = "/{id}")
     ResponseEntity<UserResponse> findById(@PathVariable Long id);
+
+    @DeleteMapping(value = "/{id}")
+    ResponseEntity<Void> delete(@PathVariable Long id);
 }

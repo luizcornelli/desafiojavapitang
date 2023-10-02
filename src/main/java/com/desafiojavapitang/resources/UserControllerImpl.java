@@ -36,4 +36,10 @@ public class UserControllerImpl implements UserController{
     public ResponseEntity<UserResponse> findById(Long id) {
         return  ResponseEntity.ok(userService.findById(id));
     }
+
+    @Override
+    public ResponseEntity<Void> delete(Long id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

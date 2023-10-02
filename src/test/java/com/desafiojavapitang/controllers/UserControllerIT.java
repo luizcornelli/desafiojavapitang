@@ -19,8 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -182,5 +181,14 @@ public class UserControllerIT {
         result.andExpect(jsonPath("$.cars[0].licensePlate").value(existsLicensePlate));
         result.andExpect(jsonPath("$.cars[0].model").value(existstModel));
         result.andExpect(jsonPath("$.cars[0].color").value(existsColor));
+    }
+
+    @Test
+    public void deleteUser() throws Exception {
+
+        ResultActions result =
+                mockMvc.perform(delete("/users/{id}", existsUserId)
+                        .contentType(MediaType.APPLICATION_JSON));
+        result.andExpect(status().isNoContent());
     }
 }
