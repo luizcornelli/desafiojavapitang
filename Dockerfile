@@ -1,5 +1,5 @@
-FROM adoptopenjdk/openjdk11
-LABEL maintainer="test_user@gmail.com"
+FROM openjdk:11
+VOLUME /tmp
 EXPOSE 8080
-COPY target/JenkinsCICD-1.0.jar JenkinsCICD-1.0.jar
-ENTRYPOINT ["java","-jar","/JenkinsCICD-1.0.jar"]
+ADD ./target/desafiojavapitang-0.0.1-SNAPSHOT.jar desafiojavapitang.jar
+ENTRYPOINT ["java","-jar","/desafiojavapitang.jar"]
