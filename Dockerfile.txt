@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11
+FROM adoptopenjdk/openjdk17
 LABEL maintainer="test_user@gmail.com"
 EXPOSE 8080
 COPY target/JenkinsCICD-1.0.jar JenkinsCICD-1.0.jar
