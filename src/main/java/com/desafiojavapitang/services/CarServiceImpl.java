@@ -1,9 +1,12 @@
 package com.desafiojavapitang.services;
 
 import com.desafiojavapitang.dto.CarResponse;
+import com.desafiojavapitang.dto.SigninResponse;
 import com.desafiojavapitang.dto.UserResponse;
 import com.desafiojavapitang.entities.CarEntity;
+import com.desafiojavapitang.entities.UserEntity;
 import com.desafiojavapitang.repositories.CarRepository;
+import com.desafiojavapitang.services.mappers.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CarServiceImpl implements CarService {
@@ -23,6 +27,9 @@ public class CarServiceImpl implements CarService {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private Mapper<CarEntity, CarResponse> carEntityToCarResponseMapper;
 
 	@Override
 	public List<CarResponse> findAllPaged(String token) {
@@ -46,5 +53,16 @@ public class CarServiceImpl implements CarService {
 		});
 
 		return carResponseList;
+	}
+
+	@Override
+	public CarResponse findById(String token, Long id) {
+
+		UserResponse userResponse = userService.findAuthenticateUser(token);
+
+		CarEntity carEntity = repository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Entity not found: " + id));
+
+		return carEntityToCarResponseMapper.map(carEntity);
 	}
 }

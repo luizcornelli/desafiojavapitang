@@ -10,4 +10,6 @@ import java.util.List;
 public interface CarService {
 
     List<CarResponse> findAllPaged(String token);
+
+    CarResponse findById(String token, Long id);
 }

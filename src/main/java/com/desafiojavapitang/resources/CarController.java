@@ -12,4 +12,8 @@ public interface CarController {
 
     @GetMapping(value = "/api/cars")
     ResponseEntity<List<CarResponse>> findAllPaged(@RequestHeader("Authorization") String token);
+
+    @GetMapping(value = "/api/cars/{id}")
+    ResponseEntity<CarResponse> findById(@RequestHeader("Authorization") String token,
+                                                   @PathVariable Long id);
 }

@@ -1,11 +1,7 @@
 package com.desafiojavapitang.controllers;
 
 
-import com.desafiojavapitang.dto.CarRequest;
-import com.desafiojavapitang.dto.SigninRequest;
-import com.desafiojavapitang.dto.UserRequest;
 import com.desafiojavapitang.utils.TokenUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -63,8 +55,6 @@ public class CarControllerIT {
 
         JacksonJsonParser jsonParser = new JacksonJsonParser();
         String accessToken = jsonParser.parseMap(resultString).get("accessToken").toString();
-        String lastLogin = jsonParser.parseMap(resultString).get("lastLogin").toString();
-        String createdAt = jsonParser.parseMap(resultString).get("createdAt").toString();
 
         ResultActions result =
                 mockMvc.perform(get("/api/cars")
@@ -78,5 +68,27 @@ public class CarControllerIT {
         result.andExpect(jsonPath("$[0].licensePlate").value(existsCarLicensePlate));
         result.andExpect(jsonPath("$[0].model").value(existsCarModel));
         result.andExpect(jsonPath("$[0].color").value(existsColor));
+    }
+
+    @Test
+    public void findByIdCar() throws Exception {
+
+        String resultString = tokenUtil.obtainAccessToken(mockMvc, existsUserLogin, existsUserPassword);
+
+        JacksonJsonParser jsonParser = new JacksonJsonParser();
+        String accessToken = jsonParser.parseMap(resultString).get("accessToken").toString();
+
+        ResultActions result =
+                mockMvc.perform(get("/api/cars/{id}", existsCarId)
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isOk());
+
+        result.andExpect(jsonPath("$.id").value(existsCarId));
+        result.andExpect(jsonPath("$.year").value(existsCarYear));
+        result.andExpect(jsonPath("$.licensePlate").value(existsCarLicensePlate));
+        result.andExpect(jsonPath("$.model").value(existsCarModel));
+        result.andExpect(jsonPath("$.color").value(existsColor));
     }
 }

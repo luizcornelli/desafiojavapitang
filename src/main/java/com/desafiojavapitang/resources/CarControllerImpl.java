@@ -18,4 +18,9 @@ public class CarControllerImpl implements CarController{
     public ResponseEntity<List<CarResponse>> findAllPaged(String token) {
         return ResponseEntity.ok(carService.findAllPaged(token));
     }
+
+    @Override
+    public ResponseEntity<CarResponse> findById(String token, Long id) {
+        return ResponseEntity.ok(carService.findById(token, id));
+    }
 }
