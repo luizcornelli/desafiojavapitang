@@ -1,5 +1,6 @@
 package com.desafiojavapitang.services;
 
+import com.desafiojavapitang.dto.CarRequest;
 import com.desafiojavapitang.dto.CarResponse;
 import com.desafiojavapitang.dto.SigninResponse;
 import com.desafiojavapitang.dto.UserResponse;
@@ -72,5 +73,19 @@ public class CarServiceImpl implements CarService {
 		userService.findAuthenticateUser(token);
 
 		repository.deleteById(id);
+	}
+
+	@Override
+	public CarResponse update(String token, Long id, CarRequest carRequest) {
+
+		userService.findAuthenticateUser(token);
+
+		CarEntity carEntity = repository.getOne(id);
+		carEntity.setYear(carRequest.getYear());
+		carEntity.setLicensePlate(carRequest.getLicensePlate());
+		carEntity.setModel(carRequest.getModel());
+		carEntity.setColor(carRequest.getColor());
+
+		return carEntityToCarResponseMapper.map(repository.save(carEntity));
 	}
 }

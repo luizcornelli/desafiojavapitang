@@ -14,4 +14,6 @@ public interface CarService {
     CarResponse findById(String token, Long id);
 
     void delete(String token, Long id);
+
+    CarResponse update(String token, Long id, CarRequest carRequest);
 }

@@ -1,7 +1,10 @@
 package com.desafiojavapitang.controllers;
 
 
+import com.desafiojavapitang.dto.CarRequest;
+import com.desafiojavapitang.dto.UserRequest;
 import com.desafiojavapitang.utils.TokenUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +30,10 @@ public class CarControllerIT {
 
     @Autowired
     private TokenUtil tokenUtil;
-    
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private Long existsCarId;
     private String existsCarYear;
     private String existsCarLicensePlate;
@@ -105,5 +111,38 @@ public class CarControllerIT {
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON));
         result.andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void updateCar() throws Exception {
+
+        String resultString = tokenUtil.obtainAccessToken(mockMvc, existsUserLogin, existsUserPassword);
+
+        JacksonJsonParser jsonParser = new JacksonJsonParser();
+        String accessToken = jsonParser.parseMap(resultString).get("accessToken").toString();
+
+        int newYear = 2020;
+        String newLicensePlate = "FDL-2034";
+        String newModel = "Fiat";
+        String newColor = "Blue";
+
+        CarRequest carRequest = new CarRequest(newYear, newLicensePlate , newModel,
+                newColor);
+
+        String jsonBody = objectMapper.writeValueAsString(carRequest);
+
+        ResultActions result =
+                mockMvc.perform(put("/api/cars/{id}", existsCarId)
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.id").value(existsCarId));
+        result.andExpect(jsonPath("$.year").value(newYear));
+        result.andExpect(jsonPath("$.licensePlate").value(newLicensePlate));
+        result.andExpect(jsonPath("$.model").value(newModel));
+        result.andExpect(jsonPath("$.color").value(newColor));
     }
 }

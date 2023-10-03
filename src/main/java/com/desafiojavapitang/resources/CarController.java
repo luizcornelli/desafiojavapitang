@@ -20,4 +20,9 @@ public interface CarController {
     @DeleteMapping(value = "/api/cars/{id}")
     ResponseEntity<Void> delete(@RequestHeader("Authorization") String token,
                                          @PathVariable Long id);
+
+    @PutMapping(value = "/api/cars/{id}")
+    ResponseEntity<CarResponse> update(@RequestHeader("Authorization") String token,
+                                @PathVariable Long id,
+                                @RequestBody CarRequest carRequest);
 }

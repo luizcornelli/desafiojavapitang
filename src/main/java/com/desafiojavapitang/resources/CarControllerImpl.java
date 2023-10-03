@@ -1,5 +1,6 @@
 package com.desafiojavapitang.resources;
 
+import com.desafiojavapitang.dto.CarRequest;
 import com.desafiojavapitang.dto.CarResponse;
 import com.desafiojavapitang.services.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,10 @@ public class CarControllerImpl implements CarController{
 
         carService.delete(token, id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<CarResponse> update(String token, Long id, CarRequest carRequest) {
+        return ResponseEntity.ok(carService.update(token, id, carRequest));
     }
 }
