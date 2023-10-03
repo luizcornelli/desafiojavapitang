@@ -27,7 +27,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 			"/h2-console/**",
 			"/api/users/**",
 			"/api/signin",
-			"/api/me"
+			"/api/me",
+			"/api/cars"
 	};
 
 	@Override
