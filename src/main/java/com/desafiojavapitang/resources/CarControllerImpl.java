@@ -4,6 +4,8 @@ import com.desafiojavapitang.dto.CarRequest;
 import com.desafiojavapitang.dto.CarResponse;
 import com.desafiojavapitang.services.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,8 +18,8 @@ public class CarControllerImpl implements CarController{
     private CarService carService;
 
     @Override
-    public ResponseEntity<List<CarResponse>> findAllPaged(String token) {
-        return ResponseEntity.ok(carService.findAllPaged(token));
+    public ResponseEntity<Page<CarResponse>> findAllPaged(String token, Pageable pageable) {
+        return ResponseEntity.ok(carService.findAllPaged(token, pageable));
     }
 
     @Override
@@ -38,7 +40,7 @@ public class CarControllerImpl implements CarController{
     }
 
     @Override
-    public ResponseEntity<CarResponse> update(String token, CarRequest carRequest) {
+    public ResponseEntity<CarResponse> create(String token, CarRequest carRequest) {
         return ResponseEntity.ok(carService.create(token, carRequest));
     }
 }

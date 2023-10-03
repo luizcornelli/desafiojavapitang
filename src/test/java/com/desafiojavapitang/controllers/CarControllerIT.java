@@ -69,11 +69,11 @@ public class CarControllerIT {
 
         result.andExpect(status().isOk());
 
-        result.andExpect(jsonPath("$[0].id").value(existsCarId));
-        result.andExpect(jsonPath("$[0].year").value(existsCarYear));
-        result.andExpect(jsonPath("$[0].licensePlate").value(existsCarLicensePlate));
-        result.andExpect(jsonPath("$[0].model").value(existsCarModel));
-        result.andExpect(jsonPath("$[0].color").value(existsColor));
+        result.andExpect(jsonPath("$.content[0].id").value(existsCarId));
+        result.andExpect(jsonPath("$.content[0].year").value(existsCarYear));
+        result.andExpect(jsonPath("$.content[0].licensePlate").value(existsCarLicensePlate));
+        result.andExpect(jsonPath("$.content[0].model").value(existsCarModel));
+        result.andExpect(jsonPath("$.content[0].color").value(existsColor));
     }
 
     @Test

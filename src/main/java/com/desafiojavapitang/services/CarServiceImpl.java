@@ -12,6 +12,8 @@ import com.desafiojavapitang.services.mappers.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,27 +36,13 @@ public class CarServiceImpl implements CarService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CarResponse> findAllPaged(String token) {
+	public Page<CarResponse> findAllPaged(String token, Pageable pageable) {
 
 		UserResponse userResponse = userService.findAuthenticateUser(token);
 
-		List<CarEntity> carEntities = repository.finByUserId(userResponse.getId());
-		List<CarResponse> carResponseList = new ArrayList<>();
+		Page<CarEntity> carEntities = repository.findByUserId(userResponse.getId(), pageable);
 
-		carEntities.forEach(car -> {
-
-			CarResponse carResponse = new CarResponse();
-
-			carResponse.setId(car.getId());
-			carResponse.setYear(car.getYear());
-			carResponse.setLicensePlate(car.getLicensePlate());
-			carResponse.setModel(car.getModel());
-			carResponse.setColor(car.getColor());
-
-			carResponseList.add(carResponse);
-		});
-
-		return carResponseList;
+		return carEntities.map(carEntityToCarResponseMapper::map);
 	}
 
 	@Override
