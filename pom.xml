@@ -18,7 +18,6 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>Hoxton.SR8</spring-cloud.version>
-		<maven.compiler.release>17</maven.compiler.release>
 	</properties>
 
 	<dependencies>
