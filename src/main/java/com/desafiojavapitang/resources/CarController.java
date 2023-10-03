@@ -25,4 +25,8 @@ public interface CarController {
     ResponseEntity<CarResponse> update(@RequestHeader("Authorization") String token,
                                 @PathVariable Long id,
                                 @RequestBody CarRequest carRequest);
+
+    @PostMapping(value = "/api/cars")
+    ResponseEntity<CarResponse> update(@RequestHeader("Authorization") String token,
+                                       @RequestBody CarRequest carRequest);
 }

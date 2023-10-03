@@ -17,10 +17,10 @@ public class CarEntityToCarResponseMapper implements Mapper<CarEntity, CarRespon
     @Override
     public CarResponse map(CarEntity input) {
 
-        CarResponse carResponse = new CarResponse(input.getId(), input.getYear(),
-                input.getLicensePlate(), input.getModel(), input.getColor(),
-                input.getUser().getId());
-
-        return carResponse;
+        return new CarResponse(input.getId(),
+                input.getYear(),
+                input.getLicensePlate(),
+                input.getModel(),
+                input.getColor());
     }
 }

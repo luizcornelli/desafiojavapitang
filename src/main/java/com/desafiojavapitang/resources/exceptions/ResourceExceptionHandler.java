@@ -75,4 +75,17 @@ public class ResourceExceptionHandler {
 
 		return ResponseEntity.status(status).body(err);
 	}
+
+	@ExceptionHandler(LicensePlateAlreadyExistsException.class)
+	public ResponseEntity<StandardError> licensePlateAlreadyExistsException(LicensePlateAlreadyExistsException e, HttpServletRequest request) {
+
+		HttpStatus status = HttpStatus.CONFLICT;
+
+		StandardError err = new StandardError();
+
+		err.setErrorCode(status.value());
+		err.setMessage(e.getMessage());
+
+		return ResponseEntity.status(status).body(err);
+	}
 }

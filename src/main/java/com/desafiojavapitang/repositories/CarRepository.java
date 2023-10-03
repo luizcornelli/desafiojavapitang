@@ -15,4 +15,6 @@ public interface CarRepository extends JpaRepository<CarEntity, Long> {
 
     @Query(value = "SELECT * FROM tb_car WHERE user_id = :id", nativeQuery = true)
     List<CarEntity> finByUserId(@Param("id") Long id);
+
+    boolean existsByLicensePlate(String licensePlate);
 }

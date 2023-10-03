@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class UserResponse {
+public class UserResponseCreate {
 
     private Long id;
     private String firstName;
@@ -17,10 +17,12 @@ public class UserResponse {
     private String createdAt;
     private String lastLogin;
 
-    public UserResponse(){
+    private List<CarResponse> cars = new ArrayList<>();
+
+    public UserResponseCreate(){
     }
 
-    public UserResponse(Long id, String firstName, String lastName, String email, String birthday, String phone, String createdAt, String lastLogin) {
+    public UserResponseCreate(Long id, String firstName, String lastName, String email, String birthday, String phone, String createdAt, String lastLogin) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -78,7 +80,7 @@ public class UserResponse {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
+    
     public String getCreatedAt() {
         return createdAt;
     }
@@ -93,5 +95,9 @@ public class UserResponse {
 
     public void setLastLogin(String lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    public List<CarResponse> getCars() {
+        return cars;
     }
 }

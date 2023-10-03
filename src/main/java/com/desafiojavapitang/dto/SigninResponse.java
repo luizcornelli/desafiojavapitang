@@ -17,7 +17,6 @@ public class SigninResponse {
     private String phone;
     private String createdAt;
     private String lastLogin;
-    private List<CarResponse> cars = new ArrayList<>();
     private String accessToken;
 
     public SigninResponse(){
@@ -88,10 +87,6 @@ public class SigninResponse {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
-    }
-
-    public List<CarResponse> getCars() {
-        return cars;
     }
 
     public String getCreatedAt() {

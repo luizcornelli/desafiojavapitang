@@ -1,15 +1,13 @@
 package com.desafiojavapitang.services;
 
-import com.desafiojavapitang.dto.SigninRequest;
-import com.desafiojavapitang.dto.SigninResponse;
-import com.desafiojavapitang.dto.UserRequest;
-import com.desafiojavapitang.dto.UserResponse;
+import com.desafiojavapitang.dto.*;
 import com.desafiojavapitang.entities.UserEntity;
 import com.desafiojavapitang.repositories.UserRepository;
 import com.desafiojavapitang.services.exceptions.*;
 import com.desafiojavapitang.services.mappers.Mapper;
 import com.desafiojavapitang.utils.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +39,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	private UserRepository repository;
 
 	@Autowired
+	private CarService carService;
+
+	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@Autowired
@@ -52,6 +53,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Autowired
 	private Mapper<UserEntity, UserResponse> userEntityToUserResponseMapper;
+
+	@Autowired
+	private Mapper<UserEntity, UserResponseCreate> userEntityToUserResponseCreateMapper;
+
 
 	@Autowired
 	private Mapper<UserRequest, UserEntity> userRequestToUserEntityMapper;
@@ -120,14 +125,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	@Transactional
-	public UserResponse create(UserRequest userRequest) {
+	public UserResponseCreate create(UserRequest userRequest) {
 
-		validateAtributes(userRequest);
+		validateAtributtes(userRequest);
 
 		UserEntity userEntity = userRequestToUserEntityMapper.map(userRequest);
 		userEntity.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
 
-		return userEntityToUserResponseMapper.map(repository.save(userEntity));
+		return userEntityToUserResponseCreateMapper.map(repository.save(userEntity));
 	}
 
 	@Override
@@ -149,7 +154,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Transactional
 	public UserResponse update(Long id, UserRequest userRequest) {
 
-		validateAtributes(userRequest);
+		validateAtributtes(userRequest);
 
 		UserEntity userEntity = repository.getOne(id);
 
@@ -164,7 +169,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return userEntityToUserResponseMapper.map(repository.save(userEntity));
 	}
 
-	public void validateAtributes(UserRequest userRequest) {
+	public void validateAtributtes(UserRequest userRequest) {
 
 		boolean existsEmail = repository.existsByEmail(userRequest.getEmail());
 		if(existsEmail){
@@ -194,6 +199,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 			throw new MissingFieldsException("Missing fields");
 		}
+
+		userRequest.getCars().forEach(car -> {
+			carService.validateAtributtes(car);
+		});
 	}
 
 	@Override
@@ -204,11 +213,21 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			throw new InvalidTokenJWTExeption("Unauthorized");
 		}
 
-		Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-		String username = claims.getSubject();
+		try{
+			Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
 
-		UserEntity userEntity = repository.findByEmail(username);
+			String username = claims.getSubject();
 
-		return userEntityToUserResponseMapper.map(userEntity);
+			UserEntity userEntity = repository.findByEmail(username);
+
+			return userEntityToUserResponseMapper.map(userEntity);
+
+		} catch (Exception e){
+			if(e instanceof ExpiredJwtException){
+				throw new InvalidTokenJWTExeption("Unauthorized - invalid session");
+			}
+		}
+		return null;
 	}
+
 }

@@ -1,9 +1,6 @@
 package com.desafiojavapitang.resources;
 
-import com.desafiojavapitang.dto.SigninRequest;
-import com.desafiojavapitang.dto.SigninResponse;
-import com.desafiojavapitang.dto.UserRequest;
-import com.desafiojavapitang.dto.UserResponse;
+import com.desafiojavapitang.dto.*;
 import com.desafiojavapitang.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,7 +25,7 @@ public class UserControllerImpl implements UserController{
     }
 
     @Override
-    public ResponseEntity<UserResponse> create(UserRequest userRequest) {
+    public ResponseEntity<UserResponseCreate> create(UserRequest userRequest) {
         return  ResponseEntity.ok(userService.create(userRequest));
     }
 

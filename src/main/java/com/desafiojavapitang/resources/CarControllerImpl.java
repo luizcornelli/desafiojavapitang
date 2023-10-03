@@ -36,4 +36,9 @@ public class CarControllerImpl implements CarController{
     public ResponseEntity<CarResponse> update(String token, Long id, CarRequest carRequest) {
         return ResponseEntity.ok(carService.update(token, id, carRequest));
     }
+
+    @Override
+    public ResponseEntity<CarResponse> update(String token, CarRequest carRequest) {
+        return ResponseEntity.ok(carService.create(token, carRequest));
+    }
 }

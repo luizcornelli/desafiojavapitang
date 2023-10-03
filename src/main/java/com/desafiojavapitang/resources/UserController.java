@@ -1,9 +1,6 @@
 package com.desafiojavapitang.resources;
 
-import com.desafiojavapitang.dto.SigninRequest;
-import com.desafiojavapitang.dto.SigninResponse;
-import com.desafiojavapitang.dto.UserRequest;
-import com.desafiojavapitang.dto.UserResponse;
+import com.desafiojavapitang.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +15,7 @@ public interface UserController {
     ResponseEntity<Page<UserResponse>> findAllPaged(Pageable pageable);
 
     @PostMapping("/api/users")
-    ResponseEntity<UserResponse> create(@RequestBody UserRequest userRequest);
+    ResponseEntity<UserResponseCreate> create(@RequestBody UserRequest userRequest);
 
     @GetMapping(value = "/api/users/{id}")
     ResponseEntity<UserResponse> findById(@PathVariable Long id);
