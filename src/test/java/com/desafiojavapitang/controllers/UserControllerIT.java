@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -52,6 +53,8 @@ public class UserControllerIT {
     private String existsColor;
     private Long existsUserId;
     private Long existsCarId;
+    private String notExistsUserLogin;
+    private String notExistsUserPassword;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -72,6 +75,9 @@ public class UserControllerIT {
         existsColor = "White";
 
         existsCarId = 1L;
+
+        notExistsUserLogin = "blabla_2931";
+        notExistsUserPassword = "48348343";
     }
 
     @Test
@@ -107,6 +113,22 @@ public class UserControllerIT {
     }
 
     @Test
+    public void throwsMessageErrorWhenTokenInvalidFindByUserLogged() throws Exception {
+
+        String msgError = "Unauthorized";
+        int errorCode = HttpStatus.UNAUTHORIZED.value();
+
+        ResultActions result =
+                mockMvc.perform(get("/api/me")
+                        .header("Authorization", "")
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isUnauthorized());
+        result.andExpect(jsonPath("$.message").value(msgError));
+        result.andExpect(jsonPath("$.errorCode").value(errorCode));
+    }
+
+    @Test
     public void findByUserAndAccessTokenJWT() throws Exception {
 
         SigninRequest signinRequest = new SigninRequest(existsUserLogin, existsUserPassword);
@@ -137,6 +159,48 @@ public class UserControllerIT {
     }
 
     @Test
+    public void throwsMessageErrorWhenLoginIsIncorrect() throws Exception {
+
+        SigninRequest signinRequest = new SigninRequest(notExistsUserLogin, existsUserPassword);
+
+        String jsonBody = objectMapper.writeValueAsString(signinRequest);
+
+        String msgError = "Invalid login or password";
+        int errorCode = HttpStatus.NOT_FOUND.value();
+
+        ResultActions result =
+                mockMvc.perform(post("/api/signin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNotFound());
+        result.andExpect(jsonPath("$.message").value(msgError));
+        result.andExpect(jsonPath("$.errorCode").value(errorCode));
+    }
+
+    @Test
+    public void throwsMessageErrorWhenPasswordIsIncorrect() throws Exception {
+
+        SigninRequest signinRequest = new SigninRequest(existsUserLogin, notExistsUserPassword);
+
+        String jsonBody = objectMapper.writeValueAsString(signinRequest);
+
+        String msgError = "Invalid login or password";
+        int errorCode = HttpStatus.NOT_FOUND.value();
+
+        ResultActions result =
+                mockMvc.perform(post("/api/signin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNotFound());
+        result.andExpect(jsonPath("$.message").value(msgError));
+        result.andExpect(jsonPath("$.errorCode").value(errorCode));
+    }
+
+    @Test
     public void findByUserPaged() throws Exception {
 
         ResultActions result =
@@ -160,6 +224,88 @@ public class UserControllerIT {
     }
 
     @Test
+    public void throwsMessageErrorWhenLoginAlreadyExistsCreateUser() throws Exception {
+
+        String dateString = "1990-05-01";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date birthday = dateFormat.parse(dateString);
+
+        String password = "123456";
+        String firstName = "Lola";
+        String lastName = "Silva";
+        String email = "lola@gmail.com";
+        String phone = "+558123933333";
+
+        UserRequest userRequest = new UserRequest(firstName, lastName , email,
+                birthday, existsUserLogin, password, phone);
+
+       Integer year = 2018;
+       String licensePlate = "UDP-0232" ;
+       String model = "Ferrari";
+       String color = "Red";
+
+        CarRequest carRequest = new CarRequest(year, licensePlate, model, color);
+
+        userRequest.getCars().add(carRequest);
+
+        String jsonBody = objectMapper.writeValueAsString(userRequest);
+
+        String msgError = "Login already exists";
+        int errorCode = HttpStatus.CONFLICT.value();
+
+        ResultActions result =
+                mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isConflict());
+        result.andExpect(jsonPath("$.message").value(msgError));
+        result.andExpect(jsonPath("$.errorCode").value(errorCode));
+    }
+
+    @Test
+    public void throwsMessageErrorWhenEmailAlreadyExistsCreateUser() throws Exception {
+
+        String dateString = "1990-05-01";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date birthday = dateFormat.parse(dateString);
+
+        String login = "lola_2132";
+        String password = "123456";
+        String firstName = "Lola";
+        String lastName = "Silva";
+        String phone = "+558123933333";
+
+        UserRequest userRequest = new UserRequest(firstName, lastName , existsUserEmail,
+                birthday, login, password, phone);
+
+        Integer year = 2018;
+        String licensePlate = "UDP-0232" ;
+        String model = "Ferrari";
+        String color = "Red";
+
+        CarRequest carRequest = new CarRequest(year, licensePlate, model, color);
+
+        userRequest.getCars().add(carRequest);
+
+        String jsonBody = objectMapper.writeValueAsString(userRequest);
+
+        String msgError = "Email already exists";
+        int errorCode = HttpStatus.CONFLICT.value();
+
+        ResultActions result =
+                mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isConflict());
+        result.andExpect(jsonPath("$.message").value(msgError));
+        result.andExpect(jsonPath("$.errorCode").value(errorCode));
+    }
+
+    @Test
     public void createUser() throws Exception {
 
         String dateString = "1990-05-01";
@@ -176,10 +322,10 @@ public class UserControllerIT {
         UserRequest userRequest = new UserRequest(firstName, lastName , email,
                 birthday, login, password, phone);
 
-       Integer year = 2018;
-       String licensePlate = "UDP-0232" ;
-       String model = "Ferrari";
-       String color = "Red";
+        Integer year = 2018;
+        String licensePlate = "UDP-0232" ;
+        String model = "Ferrari";
+        String color = "Red";
 
         CarRequest carRequest = new CarRequest(year, licensePlate, model, color);
 
@@ -271,5 +417,69 @@ public class UserControllerIT {
         result.andExpect(jsonPath("$.email").value(newEmail));
         result.andExpect(jsonPath("$.birthday").value(dateString));
         result.andExpect(jsonPath("$.phone").value(newPhone));
+    }
+
+    @Test
+    public void throwsMessageErrorWhenEmailAlreadyExistsUpdateUser() throws Exception {
+
+        String dateString = "2011-02-01";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date birthday = dateFormat.parse(dateString);
+
+        String newLogin = "carla_0212";
+        String newPassword = "654321";
+        String newFirstName = "Carla";
+        String newLastName = "Maria";
+        String newPhone = "+558123993827";
+
+        UserRequest userRequest = new UserRequest(newFirstName, newLastName , existsUserEmail,
+                birthday, newLogin, newPassword, newPhone);
+
+        String jsonBody = objectMapper.writeValueAsString(userRequest);
+
+        String msgError = "Email already exists";
+        int errorCode = HttpStatus.CONFLICT.value();
+
+        ResultActions result =
+                mockMvc.perform(put("/api/users/{id}", existsUserId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isConflict());
+        result.andExpect(jsonPath("$.message").value(msgError));
+        result.andExpect(jsonPath("$.errorCode").value(errorCode));
+    }
+
+    @Test
+    public void throwsMessageErrorWhenLoginAlreadyExistsUpdateUser() throws Exception {
+
+        String dateString = "2011-02-01";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date birthday = dateFormat.parse(dateString);
+
+        String newPassword = "654321";
+        String newFirstName = "Carla";
+        String newLastName = "Maria";
+        String newEmail = "maria_c@gmail.com";
+        String newPhone = "+558123993827";
+
+        UserRequest userRequest = new UserRequest(newFirstName, newLastName , newEmail,
+                birthday, existsUserLogin, newPassword, newPhone);
+
+        String jsonBody = objectMapper.writeValueAsString(userRequest);
+
+        String msgError = "Login already exists";
+        int errorCode = HttpStatus.CONFLICT.value();
+
+        ResultActions result =
+                mockMvc.perform(put("/api/users/{id}", existsUserId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isConflict());
+        result.andExpect(jsonPath("$.message").value(msgError));
+        result.andExpect(jsonPath("$.errorCode").value(errorCode));
     }
 }

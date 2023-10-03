@@ -21,4 +21,6 @@ public interface UserService {
     UserResponse update(Long id, UserRequest userRequest);
 
     UserResponse findAuthenticateUser(String token);
+
+    void validateAtributes(UserRequest userRequest);
 }

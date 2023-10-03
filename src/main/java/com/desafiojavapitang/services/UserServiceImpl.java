@@ -6,6 +6,7 @@ import com.desafiojavapitang.dto.UserRequest;
 import com.desafiojavapitang.dto.UserResponse;
 import com.desafiojavapitang.entities.UserEntity;
 import com.desafiojavapitang.repositories.UserRepository;
+import com.desafiojavapitang.services.exceptions.*;
 import com.desafiojavapitang.services.mappers.Mapper;
 import com.desafiojavapitang.utils.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Date;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -80,29 +82,33 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public SigninResponse authenticateUser(SigninRequest signinRequest) {
 
 		UserEntity userEntity = repository.findByLogin(signinRequest.getLogin());
+		if(userEntity == null){
+			throw new InvalidLoginOrPasswordException("Invalid login or password");
+		}
 
 		String userName = userEntity.getUsername();
 		String password = userEntity.getPassword();
 
-		if(bCryptPasswordEncoder.matches(signinRequest.getPassword(), password)){
-
-			Authentication authentication = authenticationManager
-					.authenticate(new UsernamePasswordAuthenticationToken(userName, signinRequest.getPassword()));
-
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-
-			String accessToken = jwtTokenProvider.generateToken(authentication);
-
-			userEntity.setLastLogin(Instant.now());
-			userEntity = repository.save(userEntity);
-
-			SigninResponse signinResponse = userEntityToSigninResponseMapper.map(userEntity);
-
-			signinResponse.setAccessToken(accessToken);
-
-			return signinResponse;
+		boolean isMatcherPassword = bCryptPasswordEncoder.matches(signinRequest.getPassword(), password);
+		if(!isMatcherPassword){
+			throw new InvalidLoginOrPasswordException("Invalid login or password");
 		}
-		return null;
+
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(userName, signinRequest.getPassword()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		String accessToken = jwtTokenProvider.generateToken(authentication);
+
+		userEntity.setLastLogin(Instant.now());
+		userEntity = repository.save(userEntity);
+
+		SigninResponse signinResponse = userEntityToSigninResponseMapper.map(userEntity);
+
+		signinResponse.setAccessToken(accessToken);
+
+		return signinResponse;
 	}
 
 	@Override
@@ -115,6 +121,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Override
 	@Transactional
 	public UserResponse create(UserRequest userRequest) {
+
+		validateAtributes(userRequest);
 
 		UserEntity userEntity = userRequestToUserEntityMapper.map(userRequest);
 		userEntity.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
@@ -141,6 +149,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Transactional
 	public UserResponse update(Long id, UserRequest userRequest) {
 
+		validateAtributes(userRequest);
+
 		UserEntity userEntity = repository.getOne(id);
 
 		userEntity.setFirstName(userRequest.getFirstName());
@@ -154,9 +164,45 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return userEntityToUserResponseMapper.map(repository.save(userEntity));
 	}
 
+	public void validateAtributes(UserRequest userRequest) {
+
+		boolean existsEmail = repository.existsByEmail(userRequest.getEmail());
+		if(existsEmail){
+			throw new EmailAlreadyException("Email already exists");
+		}
+
+		boolean existsLogin = repository.existsByLogin(userRequest.getLogin());
+		if(existsLogin){
+			throw new LoginAlreadyException("Login already exists");
+		}
+
+		String firstName = userRequest.getFirstName();
+		String lastName = userRequest.getLastName();
+		String email = userRequest.getEmail();
+		Date birthday = userRequest.getBirthday();
+		String login = userRequest.getLogin();
+		String password = userRequest.getPassword();
+		String phone = userRequest.getPhone();
+
+		if( (firstName == null || firstName.isEmpty() || firstName.isBlank())
+				|| (lastName == null || lastName.isEmpty() || lastName.isBlank())
+				|| (email == null || email.isEmpty() || email.isBlank())
+				|| birthday == null
+				|| (login == null || login.isEmpty() || login.isBlank())
+				|| (password == null || password.isEmpty() || password.isBlank())
+				|| (phone == null || phone.isEmpty() || phone.isBlank())){
+
+			throw new MissingFieldsException("Missing fields");
+		}
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public UserResponse findAuthenticateUser(String token) {
+
+		if(token == null || token.isEmpty() || token.isBlank()){
+			throw new InvalidTokenJWTExeption("Unauthorized");
+		}
 
 		Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
 		String username = claims.getSubject();
