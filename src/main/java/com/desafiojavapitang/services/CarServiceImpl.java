@@ -58,11 +58,19 @@ public class CarServiceImpl implements CarService {
 	@Override
 	public CarResponse findById(String token, Long id) {
 
-		UserResponse userResponse = userService.findAuthenticateUser(token);
+		userService.findAuthenticateUser(token);
 
 		CarEntity carEntity = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Entity not found: " + id));
 
 		return carEntityToCarResponseMapper.map(carEntity);
+	}
+
+	@Override
+	public void delete(String token, Long id) {
+
+		userService.findAuthenticateUser(token);
+
+		repository.deleteById(id);
 	}
 }

@@ -16,4 +16,8 @@ public interface CarController {
     @GetMapping(value = "/api/cars/{id}")
     ResponseEntity<CarResponse> findById(@RequestHeader("Authorization") String token,
                                                    @PathVariable Long id);
+
+    @DeleteMapping(value = "/api/cars/{id}")
+    ResponseEntity<Void> delete(@RequestHeader("Authorization") String token,
+                                         @PathVariable Long id);
 }

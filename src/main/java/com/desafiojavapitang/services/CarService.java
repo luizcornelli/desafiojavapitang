@@ -12,4 +12,6 @@ public interface CarService {
     List<CarResponse> findAllPaged(String token);
 
     CarResponse findById(String token, Long id);
+
+    void delete(String token, Long id);
 }

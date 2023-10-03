@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,5 +90,20 @@ public class CarControllerIT {
         result.andExpect(jsonPath("$.licensePlate").value(existsCarLicensePlate));
         result.andExpect(jsonPath("$.model").value(existsCarModel));
         result.andExpect(jsonPath("$.color").value(existsColor));
+    }
+
+    @Test
+    public void deleteCar() throws Exception {
+
+        String resultString = tokenUtil.obtainAccessToken(mockMvc, existsUserLogin, existsUserPassword);
+
+        JacksonJsonParser jsonParser = new JacksonJsonParser();
+        String accessToken = jsonParser.parseMap(resultString).get("accessToken").toString();
+
+        ResultActions result =
+                mockMvc.perform(delete("/api/cars/{id}", existsCarId)
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON));
+        result.andExpect(status().isNoContent());
     }
 }

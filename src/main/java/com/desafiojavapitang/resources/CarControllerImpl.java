@@ -23,4 +23,11 @@ public class CarControllerImpl implements CarController{
     public ResponseEntity<CarResponse> findById(String token, Long id) {
         return ResponseEntity.ok(carService.findById(token, id));
     }
+
+    @Override
+    public ResponseEntity<Void> delete(String token, Long id) {
+
+        carService.delete(token, id);
+        return ResponseEntity.noContent().build();
+    }
 }
