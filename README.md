@@ -17,6 +17,12 @@ O desafio consiste em criar uma aplicação responsável por gerenciar usuários
 7. Swagger
 8. Testes unitários dos contratos da API usando MockMvc
 
+# Testes
+
+1. Para fazer os testes em Produção deve-se acessar o Link da documentação [Swagger](http://ec2-35-153-66-185.compute-1.amazonaws.com:8081/swagger-ui/index.html) 
+2. Para executar o projeto localmente basta clonar o projeto e importar na sua IDE de preferencia, subir a aplicação e acessar localhost na porta 8081 e o [Swagger](http://localhost:8081/swagger-ui/index.html) 
+3. Para executar os testes unitários é preciso fazer o passo do item 2 e clicar com o botão direito **src > main > test**. 
+
 # Histórias de usuário
 
 1. Gestão de Usuários:
@@ -115,10 +121,4 @@ O desafio consiste em criar uma aplicação responsável por gerenciar usuários
 	
 	Testes unitários garantem que partes específicas do código funcionem conforme esperado, evitando regressões e reduzindo a probabilidade de bugs em estágios posteriores do desenvolvimento.
 	Além disso, eles facilitam a refatoração, melhoram a manutenibilidade e proporcionam confiança aos desenvolvedores, sabendo que suas alterações não prejudicam outras partes do sistema.
-
-# Testes
-
-1. Para fazer os testes em Produção deve-se acessar o Link da documentação [Swagger](http://ec2-35-153-66-185.compute-1.amazonaws.com:8081/swagger-ui/index.html) 
-2. Para executar o projeto localmente basta clonar o projeto e importar na sua IDE de preferencia, subir a aplicação e acessar localhost na porta 8081 e o [Swagger](http://localhost:8081/swagger-ui/index.html) 
-3. Para executar os testes unitários é preciso fazer o passo do item 2 e clicar com o botão direito **src > main > test**. 
    
