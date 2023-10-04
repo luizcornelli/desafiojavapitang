@@ -21,4 +21,6 @@ public interface CarService {
     boolean existsByLicensePlate(String licensePlate);
 
     void validateAtributtes(CarRequest carRequest);
+
+    void deleteAll();
 }

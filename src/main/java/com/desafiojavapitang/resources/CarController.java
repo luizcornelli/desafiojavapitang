@@ -38,4 +38,8 @@ public interface CarController {
     @PostMapping(value = "/api/cars")
     ResponseEntity<CarResponse> create(@RequestHeader("Authorization") String token,
                                        @RequestBody CarRequest carRequest);
+
+    @Operation(summary = "Limpa tabela de carros", method = "DELETE")
+    @DeleteMapping(value = "/api/cars/deleteAll")
+    ResponseEntity<Void> deleteAll();
 }

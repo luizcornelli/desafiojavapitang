@@ -43,4 +43,10 @@ public class CarControllerImpl implements CarController{
     public ResponseEntity<CarResponse> create(String token, CarRequest carRequest) {
         return ResponseEntity.ok(carService.create(token, carRequest));
     }
+
+    @Override
+    public ResponseEntity<Void> deleteAll() {
+        carService.deleteAll();
+        return ResponseEntity.noContent().build();
+    }
 }

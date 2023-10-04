@@ -49,4 +49,10 @@ public class UserControllerImpl implements UserController{
     public ResponseEntity<UserResponse> findAuthenticateUser(String token) {
         return  ResponseEntity.ok(userService.findAuthenticateUser(token));
     }
+
+    @Override
+    public ResponseEntity<Void> deleteAll() {
+        userService.deleteAll();
+        return ResponseEntity.noContent().build();
+    }
 }

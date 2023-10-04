@@ -39,4 +39,8 @@ public interface UserController {
     @Operation(summary = "Recupera informações do usuário logado", method = "GET")
     @GetMapping(value = "/api/me")
     ResponseEntity<UserResponse> findAuthenticateUser(@RequestHeader("Authorization") String token);
+
+    @Operation(summary = "Limpa tabela de users", method = "DELETE")
+    @DeleteMapping(value = "/api/users/deleteAll")
+    ResponseEntity<Void> deleteAll();
 }

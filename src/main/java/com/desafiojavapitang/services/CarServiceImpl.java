@@ -134,4 +134,10 @@ public class CarServiceImpl implements CarService {
 			throw new MissingFieldsException("Missing fields");
 		}
 	}
+
+	@Override
+	@Transactional
+	public void deleteAll() {
+		repository.deleteAll();
+	}
 }

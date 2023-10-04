@@ -20,4 +20,6 @@ public interface UserService {
     UserResponse findAuthenticateUser(String token);
 
     void validateAtributtes(UserRequest userRequest);
+
+    void deleteAll();
 }

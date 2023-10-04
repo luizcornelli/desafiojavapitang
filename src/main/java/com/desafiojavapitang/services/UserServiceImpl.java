@@ -206,6 +206,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
+	@Transactional
+	public void deleteAll() {
+		repository.deleteAll();
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public UserResponse findAuthenticateUser(String token) {
 
