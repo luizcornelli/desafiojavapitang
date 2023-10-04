@@ -6,6 +6,17 @@ Desafio técnico Java Pitang
 
 O desafio consiste em criar uma aplicação responsável por gerenciar usuários e carros
 
+# Ferramentas utilizadas
+
+1. Spring boot
+2. Banco de dados H2
+3. Java versão 11
+4. Docker
+5. EC2 AWS e ECR AWS
+6. Jenkis
+7. Swagger
+8. Testes unitários dos contratos da API usando MockMvc
+
 # Histórias de usuário
 
 1. Gestão de Usuários:
