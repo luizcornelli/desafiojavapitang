@@ -1,0 +1,12 @@
+com.desafiojavapitang
+com.desafiojavapitang.config
+com.desafiojavapitang.controllers
+com.desafiojavapitang.dto
+com.desafiojavapitang.entities
+com.desafiojavapitang.repositories
+com.desafiojavapitang.resources
+com.desafiojavapitang.resources.exceptions
+com.desafiojavapitang.services
+com.desafiojavapitang.services.exceptions
+com.desafiojavapitang.services.mappers
+com.desafiojavapitang.utils
