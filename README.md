@@ -120,5 +120,5 @@ O desafio consiste em criar uma aplicação responsável por gerenciar usuários
 
 1. Para fazer os testes em Produção deve-se acessar o Link da documentação [Swagger](http://ec2-35-153-66-185.compute-1.amazonaws.com:8081/swagger-ui/index.html) 
 2. Para executar o projeto localmente basta clonar o projeto e importar na sua IDE de preferencia, subir a aplicação e acessar localhost na porta 8081 e o [Swagger](http://localhost:8081/swagger-ui/index.html) 
-3. Para executar os testes unitários é preciso fazer o passo do item 2 e clicar com o botão direito src > main > test. 
+3. Para executar os testes unitários é preciso fazer o passo do item 2 e clicar com o botão direito **src > main > test**. 
    
