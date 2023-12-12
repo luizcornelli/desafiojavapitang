@@ -1,11 +1,19 @@
-name: ci-desafiojavapitang-workflow
-on: [push]
+name: Desafio java pitang
+
+on:
+  push:
+    branches: [ main ]
+
 jobs:
-  check-application: 
+  build:
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v4
-        with: 
-          java-version: 11
-      - run: mvn test
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+      - name: Build with Maven
+        run: mvn clean install
