@@ -1,11 +1,6 @@
 FROM openjdk:11
-
-WORKDIR /app
-
-COPY . .
-
+VOLUME /tmp
+EXPOSE 8080
 RUN mvn clean install
-
-ADD /app/target/desafiojavapitang-0.0.1-SNAPSHOT.jar desafiojavapitang.jar
-
-ENTRYPOINT ["java","-jar","/app/desafiojavapitang.jar"]
+ADD ./target/desafiojavapitang-0.0.1-SNAPSHOT.jar desafiojavapitang.jar
+ENTRYPOINT ["java","-jar","/desafiojavapitang.jar"]
