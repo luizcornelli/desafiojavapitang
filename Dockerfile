@@ -1,17 +1,16 @@
 FROM openjdk:11
 
-VOLUME /tmp
-
 WORKDIR /app
 
-EXPOSE 8080
+COPY target/desafiojavapitang-0.0.1-SNAPSHOT.jar app.jar
 
-COPY /src /app/src
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
-COPY /pom.xml /app
+#RUN apt update -y
+#
+#RUN apt install -y maven
+#
+#RUN mvn clean install
+#COPY /app/target/*.jar app.jar
 
-RUN mvn clean install
-
-COPY /app/target/*.jar app.jar
-
-ENTRYPOINT ["java","-jar","/app.jar"]
+#ENTRYPOINT ["java","-jar","/app.jar"]
