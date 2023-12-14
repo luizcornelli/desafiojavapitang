@@ -32,4 +32,4 @@ jobs:
         run: docker build -t luizcornelli/desafiojavapitang .
 
       - name: Push image docker
-        run: docker push luizcornelli/desagiojavapitang:latest
+        run: docker push luizcornelli/desafiojavapitang
