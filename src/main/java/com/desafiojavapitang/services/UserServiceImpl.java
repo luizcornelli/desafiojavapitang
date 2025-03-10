@@ -23,32 +23,36 @@ import java.util.Date;
 
 @Service
 public class UserServiceImpl implements UserService {
-	
-	private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-	
-	@Autowired
-	private UserRepository repository;
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+	private final UserRepository repository;
+	private final CarService carService;
+	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	private final Mapper<UserEntity, UserResponse> userEntityToUserResponseMapper;
+	private final Mapper<UserEntity, UserResponseCreate> userEntityToUserResponseCreateMapper;
+	private final Mapper<UserRequest, UserEntity> userRequestToUserEntityMapper;
+	private final Mapper<UserEntity, SigninResponse> userEntityToSigninResponseMapper;
+	private final KeycloakUserServiceImpl keycloakUserService;
 
 	@Autowired
-	private CarService carService;
-
-	@Autowired
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-	@Autowired
-	private Mapper<UserEntity, UserResponse> userEntityToUserResponseMapper;
-
-	@Autowired
-	private Mapper<UserEntity, UserResponseCreate> userEntityToUserResponseCreateMapper;
-
-	@Autowired
-	private Mapper<UserRequest, UserEntity> userRequestToUserEntityMapper;
-
-	@Autowired
-	private Mapper<UserEntity, SigninResponse> userEntityToSigninResponseMapper;
-
-	@Autowired
-	private KeycloakUserServiceImpl keycloakUserService;
+	public UserServiceImpl(
+			UserRepository repository,
+			CarService carService,
+			BCryptPasswordEncoder bCryptPasswordEncoder,
+			Mapper<UserEntity, UserResponse> userEntityToUserResponseMapper,
+			Mapper<UserEntity, UserResponseCreate> userEntityToUserResponseCreateMapper,
+			Mapper<UserRequest, UserEntity> userRequestToUserEntityMapper,
+			Mapper<UserEntity, SigninResponse> userEntityToSigninResponseMapper,
+			KeycloakUserServiceImpl keycloakUserService) {
+		this.repository = repository;
+		this.carService = carService;
+		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+		this.userEntityToUserResponseMapper = userEntityToUserResponseMapper;
+		this.userEntityToUserResponseCreateMapper = userEntityToUserResponseCreateMapper;
+		this.userRequestToUserEntityMapper = userRequestToUserEntityMapper;
+		this.userEntityToSigninResponseMapper = userEntityToSigninResponseMapper;
+		this.keycloakUserService = keycloakUserService;
+	}
 
 	@Override
 	@Transactional
