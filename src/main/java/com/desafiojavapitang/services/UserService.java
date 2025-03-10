@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface UserService {
+
     SigninResponse authenticateUser(SigninRequest signinRequest);
 
     Page<UserResponse> findAllPaged(Pageable pageable);

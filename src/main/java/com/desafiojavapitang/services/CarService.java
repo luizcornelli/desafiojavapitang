@@ -1,10 +1,9 @@
 package com.desafiojavapitang.services;
 
-import com.desafiojavapitang.dto.*;
+import com.desafiojavapitang.dto.CarRequest;
+import com.desafiojavapitang.dto.CarResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface CarService {
 

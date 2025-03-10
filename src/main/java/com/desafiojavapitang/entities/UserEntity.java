@@ -1,16 +1,16 @@
 package com.desafiojavapitang.entities;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tb_user")
-public class UserEntity implements UserDetails, Serializable {
+public class UserEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -96,7 +96,6 @@ public class UserEntity implements UserDetails, Serializable {
         return cars;
     }
 
-    @Override
     public String getPassword() {
         return password;
     }
@@ -124,36 +123,6 @@ public class UserEntity implements UserDetails, Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 
     public Instant getCreatedAt() {

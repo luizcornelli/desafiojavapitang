@@ -3,35 +3,26 @@ package com.desafiojavapitang.services;
 import com.desafiojavapitang.dto.*;
 import com.desafiojavapitang.entities.UserEntity;
 import com.desafiojavapitang.repositories.UserRepository;
-import com.desafiojavapitang.services.exceptions.*;
+import com.desafiojavapitang.services.exceptions.EmailAlreadyException;
+import com.desafiojavapitang.services.exceptions.InvalidLoginOrPasswordException;
+import com.desafiojavapitang.services.exceptions.LoginAlreadyException;
+import com.desafiojavapitang.services.exceptions.MissingFieldsException;
 import com.desafiojavapitang.services.mappers.Mapper;
-import com.desafiojavapitang.utils.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 
 @Service
-public class UserServiceImpl implements UserDetailsService, UserService {
+public class UserServiceImpl implements UserService {
 	
 	private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 	
@@ -45,18 +36,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@Autowired
-	@Lazy
-	private AuthenticationManager authenticationManager;
-
-	@Autowired
-	private JwtTokenProvider jwtTokenProvider;
-
-	@Autowired
 	private Mapper<UserEntity, UserResponse> userEntityToUserResponseMapper;
 
 	@Autowired
 	private Mapper<UserEntity, UserResponseCreate> userEntityToUserResponseCreateMapper;
-
 
 	@Autowired
 	private Mapper<UserRequest, UserEntity> userRequestToUserEntityMapper;
@@ -64,23 +47,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Autowired
 	private Mapper<UserEntity, SigninResponse> userEntityToSigninResponseMapper;
 
-	@Value("${jwt.secret}")
-	private String jwtSecret;
-
-	@Override
-	@Transactional(readOnly = true)
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		
-		UserEntity user = repository.findByEmail(username);
-		
-		if(user == null) {
-			logger.error("User not found: " + username);
-			throw new UsernameNotFoundException("Email not found");
-		}
-		
-		logger.info("User found: " + username);
-		return user; 
-	}
+	@Autowired
+	private KeycloakUserServiceImpl keycloakUserService;
 
 	@Override
 	@Transactional
@@ -91,7 +59,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			throw new InvalidLoginOrPasswordException("Invalid login or password");
 		}
 
-		String userName = userEntity.getUsername();
+		String userName = userEntity.getLogin();
 		String password = userEntity.getPassword();
 
 		boolean isMatcherPassword = bCryptPasswordEncoder.matches(signinRequest.getPassword(), password);
@@ -99,14 +67,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			throw new InvalidLoginOrPasswordException("Invalid login or password");
 		}
 
-		Authentication authentication = authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken(userName, signinRequest.getPassword()));
+        String accessToken = null;
+        try {
+            accessToken = keycloakUserService.obterTokenUsuario(userName, signinRequest.getPassword());
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao recuperar token do usuário no Keycloak");
+        }
 
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-
-		String accessToken = jwtTokenProvider.generateToken(authentication);
-
-		userEntity.setLastLogin(Instant.now());
+        userEntity.setLastLogin(Instant.now());
 		userEntity = repository.save(userEntity);
 
 		SigninResponse signinResponse = userEntityToSigninResponseMapper.map(userEntity);
@@ -128,6 +96,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	public UserResponseCreate create(UserRequest userRequest) {
 
 		validateAtributtes(userRequest);
+
+		try {
+			keycloakUserService.criarUsuarioNoKeycloak(userRequest);
+		} catch (IOException e) {
+			throw new RuntimeException("Erro ao criar usuário no Keycloak");
+		}
 
 		UserEntity userEntity = userRequestToUserEntityMapper.map(userRequest);
 		userEntity.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
@@ -215,24 +189,24 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	@Transactional(readOnly = true)
 	public UserResponse findAuthenticateUser(String token) {
 
-		if(token == null || token.isEmpty() || token.isBlank()){
-			throw new InvalidTokenJWTExeption("Unauthorized");
-		}
-
-		try{
-			Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-
-			String username = claims.getSubject();
-
-			UserEntity userEntity = repository.findByEmail(username);
-
-			return userEntityToUserResponseMapper.map(userEntity);
-
-		} catch (Exception e){
-			if(e instanceof ExpiredJwtException){
-				throw new InvalidTokenJWTExeption("Unauthorized - invalid session");
-			}
-		}
+//		if(token == null || token.isEmpty() || token.isBlank()){
+//			throw new InvalidTokenJWTExeption("Unauthorized");
+//		}
+//
+//		try{
+//			Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
+//
+//			String username = claims.getSubject();
+//
+//			UserEntity userEntity = repository.findByEmail(username);
+//
+//			return userEntityToUserResponseMapper.map(userEntity);
+//
+//		} catch (Exception e){
+//			if(e instanceof ExpiredJwtException){
+//				throw new InvalidTokenJWTExeption("Unauthorized - invalid session");
+//			}
+//		}
 		return null;
 	}
 

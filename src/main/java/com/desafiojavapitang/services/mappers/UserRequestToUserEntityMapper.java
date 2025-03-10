@@ -5,10 +5,7 @@ import com.desafiojavapitang.entities.CarEntity;
 import com.desafiojavapitang.entities.UserEntity;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Component

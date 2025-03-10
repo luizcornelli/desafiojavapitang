@@ -1,8 +1,5 @@
 package com.desafiojavapitang.dto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-
 public class CarRequest {
 
     private Integer year;
