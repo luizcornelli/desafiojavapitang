@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -105,7 +106,7 @@ public class UserServiceTest {
 
 
     @Test
-    public void testFindAllPaged() {
+    public void testFindAllPaged_Success() {
 
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -143,6 +144,85 @@ public class UserServiceTest {
 
         verify(repository, times(1)).findAll(pageable);
 
+        verify(userEntityToUserResponseMapper, times(1)).map(userEntity);
+    }
+
+    @Test
+    void testCreateUser_Success() throws IOException {
+
+        UserRequest userRequest = new UserRequest();
+        userRequest.setFirstName("John");
+        userRequest.setLastName("Doe");
+        userRequest.setEmail("john.doe@example.com");
+        userRequest.setBirthday(new Date());
+        userRequest.setLogin("johndoe");
+        userRequest.setPassword("securePassword");
+        userRequest.setPhone("123456789");
+        userRequest.getCars().addAll(Collections.emptyList());
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+        userEntity.setFirstName(userRequest.getFirstName());
+        userEntity.setLastName(userRequest.getLastName());
+        userEntity.setEmail(userRequest.getEmail());
+        userEntity.setBirthday(userRequest.getBirthday());
+        userEntity.setLogin(userRequest.getLogin());
+        userEntity.setPassword("encodedPassword");
+        userEntity.setPhone(userRequest.getPhone());
+
+        UserResponseCreate expectedResponse = new UserResponseCreate(1L, "John", "Doe", "john.doe@example.com", "2000-01-01", "123456789", "2025-01-01", null);
+
+        when(repository.existsByEmail(userRequest.getEmail())).thenReturn(false);
+        when(repository.existsByLogin(userRequest.getLogin())).thenReturn(false);
+        when(bCryptPasswordEncoder.encode(userRequest.getPassword())).thenReturn("encodedPassword");
+        when(userRequestToUserEntityMapper.map(userRequest)).thenReturn(userEntity);
+        when(repository.save(userEntity)).thenReturn(userEntity);
+        when(userEntityToUserResponseCreateMapper.map(userEntity)).thenReturn(expectedResponse);
+
+        UserResponseCreate actualResponse = userService.create(userRequest);
+
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse, actualResponse);
+
+        verify(keycloakUserService, times(1)).criarUsuarioNoKeycloak(userRequest);
+        verify(repository, times(1)).save(userEntity);
+        verify(userRequestToUserEntityMapper, times(1)).map(userRequest);
+        verify(userEntityToUserResponseCreateMapper, times(1)).map(userEntity);
+        verify(bCryptPasswordEncoder, times(1)).encode(userRequest.getPassword());
+    }
+
+    @Test
+    void testFindByIdUser_Success() {
+
+        Long idUser = 10L;
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(idUser);
+        userEntity.setFirstName("João");
+        userEntity.setLastName("Pedro");
+        userEntity.setEmail("joao@hotmail.com");
+        userEntity.setBirthday(new Date());
+        userEntity.setLogin("joao.pedro");
+        userEntity.setPhone("123456789");
+
+        when(repository.findById(idUser)).thenReturn(Optional.of(userEntity));
+
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(userEntity.getId());
+        userResponse.setFirstName(userEntity.getFirstName());
+        userResponse.setLastName(userEntity.getLastName());
+        userResponse.setEmail(userEntity.getEmail());
+        userResponse.setBirthday(String.valueOf(userEntity.getBirthday()));
+        userResponse.setPhone(userEntity.getPhone());
+
+        when(userEntityToUserResponseMapper.map(userEntity)).thenReturn(userResponse);
+
+        UserResponse actualResponse = userService.findById(idUser);
+
+        assertNotNull(actualResponse);
+        assertEquals(actualResponse, userResponse);
+
+        verify(repository, times(1)).findById(idUser);
         verify(userEntityToUserResponseMapper, times(1)).map(userEntity);
     }
 }

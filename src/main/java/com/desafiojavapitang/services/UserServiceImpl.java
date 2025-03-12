@@ -178,9 +178,7 @@ public class UserServiceImpl implements UserService {
 			throw new MissingFieldsException("Missing fields");
 		}
 
-		userRequest.getCars().forEach(car -> {
-			carService.validateAtributtes(car);
-		});
+		userRequest.getCars().forEach(carService::validateAtributtes);
 	}
 
 	@Override
