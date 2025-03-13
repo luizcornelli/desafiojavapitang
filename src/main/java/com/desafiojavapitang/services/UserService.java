@@ -4,6 +4,8 @@ import com.desafiojavapitang.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.io.IOException;
+
 public interface UserService {
 
     SigninResponse authenticateUser(SigninRequest signinRequest);

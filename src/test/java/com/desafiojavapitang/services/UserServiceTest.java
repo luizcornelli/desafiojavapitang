@@ -18,8 +18,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
@@ -224,5 +223,33 @@ public class UserServiceTest {
 
         verify(repository, times(1)).findById(idUser);
         verify(userEntityToUserResponseMapper, times(1)).map(userEntity);
+    }
+
+
+    @Test
+    void testDeleteUser_Success() throws IOException {
+        Long userId = 1L;
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+        userEntity.setEmail("joao@email.com");
+
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(1L);
+        userResponse.setEmail("joao@email.com");
+
+        when(repository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(userEntityToUserResponseMapper.map(userEntity)).thenReturn(userResponse);
+
+        doNothing().when(keycloakUserService).deletarUsuario(userResponse.getEmail());
+
+        doNothing().when(repository).deleteById(userId);
+
+        assertDoesNotThrow(() -> userService.delete(userId));
+
+        verify(repository).findById(userId);
+        verify(userEntityToUserResponseMapper).map(userEntity);
+        verify(keycloakUserService).deletarUsuario(userResponse.getEmail());
+        verify(repository).deleteById(userId);
     }
 }

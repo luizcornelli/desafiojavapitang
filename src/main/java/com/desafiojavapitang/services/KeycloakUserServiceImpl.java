@@ -1,9 +1,13 @@
 package com.desafiojavapitang.services;
 
 import com.desafiojavapitang.dto.UserRequest;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -131,4 +136,92 @@ public class KeycloakUserServiceImpl implements KeycloakUserService{
         }
     }
 
+    @Override
+    public String buscarUsuarioId(String accessToken, String email) throws IOException {
+        String searchUserUrl = authServerUrl + "/admin/realms/" + realm + "/users?email=" + email;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(searchUserUrl);
+            httpGet.setHeader("Authorization", "Bearer " + accessToken);
+
+            HttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity());
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Map<String, Object>> users = objectMapper.readValue(responseBody, new TypeReference<List<Map<String, Object>>>() {});
+
+            if (users.isEmpty()) {
+                throw new RuntimeException("Usuário não encontrado com o email: " + email);
+            }
+
+            return (String) users.get(0).get("id");
+        }
+
+    }
+
+    @Override
+    public void deletarUsuario(String email) throws IOException {
+
+        String accessToken = obterAccessToken();
+
+        String userId = buscarUsuarioId(accessToken, email);
+
+        if (userId == null || userId.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado para o e-mail: " + email);
+        }
+
+        String deleteUserUrl = authServerUrl + "/admin/realms/" + realm + "/users/" + userId;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpDelete httpDelete = new HttpDelete(deleteUserUrl);
+            httpDelete.setHeader("Authorization", "Bearer " + accessToken);
+
+            HttpResponse response = httpClient.execute(httpDelete);
+
+            if (response.getStatusLine().getStatusCode() != 204) {
+                throw new RuntimeException("Erro ao deletar usuário no Keycloak: " + response.getStatusLine().getReasonPhrase());
+            }
+        }
+    }
+
+    @Override
+    public void atualizarUsuario(String email, UserRequest userRequest) throws IOException {
+
+        String accessToken = obterAccessToken();
+        String userId = buscarUsuarioId(accessToken, email);
+
+        if (userId == null || userId.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado para o e-mail: " + email);
+        }
+
+        String updateUserUrl = authServerUrl + "/admin/realms/" + realm + "/users/" + userId;
+
+        Map<String, Object> updatedUser = new HashMap<>();
+        updatedUser.put("firstName", userRequest.getFirstName());
+        updatedUser.put("lastName", userRequest.getLastName());
+        updatedUser.put("email", userRequest.getEmail());
+
+        if (userRequest.getPassword() != null && !userRequest.getPassword().isBlank()) {
+            Map<String, Object> credentials = new HashMap<>();
+            credentials.put("type", "password");
+            credentials.put("value", userRequest.getPassword());
+            credentials.put("temporary", false);
+
+            updatedUser.put("credentials", Collections.singletonList(credentials));
+        }
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPut httpPut = new HttpPut(updateUserUrl);
+            httpPut.setHeader("Content-Type", "application/json");
+            httpPut.setHeader("Authorization", "Bearer " + accessToken);
+            httpPut.setEntity(new StringEntity(new ObjectMapper().writeValueAsString(updatedUser)));
+
+            HttpResponse response = httpClient.execute(httpPut);
+            String responseBody = EntityUtils.toString(response.getEntity());
+
+            if (response.getStatusLine().getStatusCode() != 204) {
+                throw new RuntimeException("Erro ao atualizar usuário no Keycloak: " + response.getStatusLine().getReasonPhrase());
+            }
+        }
+    }
 }

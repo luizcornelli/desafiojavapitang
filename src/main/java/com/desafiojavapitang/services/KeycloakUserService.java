@@ -17,4 +17,10 @@ public interface KeycloakUserService {
     String mapToFormUrlEncoded(Map<String, String> params);
 
     String obterTokenUsuario(String username, String password) throws IOException;
+
+    String buscarUsuarioId(String accessToken, String email) throws IOException;
+
+    void deletarUsuario(String email) throws IOException;
+
+    void atualizarUsuario(String email, UserRequest userRequest) throws IOException;
 }

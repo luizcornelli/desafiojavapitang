@@ -125,7 +125,14 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void delete(Long id) {
 
-		repository.deleteById(id);
+		UserResponse userResponse = findById(id);
+        try {
+            keycloakUserService.deletarUsuario(userResponse.getEmail());
+        } catch (IOException e) {
+			throw new RuntimeException("Erro ao deletar usuário no Keycloak");
+		}
+
+        repository.deleteById(id);
 	}
 
 	@Override
@@ -134,17 +141,34 @@ public class UserServiceImpl implements UserService {
 
 		validateAtributtes(userRequest);
 
-		UserEntity userEntity = repository.getOne(id);
+		UserEntity userEntity = repository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+
+		String oldEmail = userEntity.getEmail();
+		String oldPassword = userEntity.getPassword();
 
 		userEntity.setFirstName(userRequest.getFirstName());
 		userEntity.setLastName(userRequest.getLastName());
 		userEntity.setEmail(userRequest.getEmail());
 		userEntity.setBirthday(userRequest.getBirthday());
 		userEntity.setLogin(userRequest.getLogin());
-		userEntity.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
 		userEntity.setPhone(userRequest.getPhone());
 
-		return userEntityToUserResponseMapper.map(repository.save(userEntity));
+		if (userRequest.getPassword() != null && !userRequest.getPassword().isBlank()) {
+			userEntity.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
+		} else {
+			userEntity.setPassword(oldPassword);
+		}
+
+		UserResponse response = userEntityToUserResponseMapper.map(repository.save(userEntity));
+
+		try {
+			keycloakUserService.atualizarUsuario(oldEmail, userRequest);
+		} catch (IOException e) {
+			throw new RuntimeException("Erro ao atualizar usuário no Keycloak", e);
+		}
+
+		return response;
 	}
 
 	public void validateAtributtes(UserRequest userRequest) {
