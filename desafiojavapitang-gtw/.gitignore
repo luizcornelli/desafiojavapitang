@@ -31,3 +31,39 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# IntelliJ IDEA specific files
+allignore
+dv.complex.xml
+dv.jarRepositories.xml
+dv.nisc.xml
+dv.vcs.xml
+
+# Outras entradas recomendadas para Java/Spring
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+bin/
